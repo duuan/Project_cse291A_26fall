@@ -180,3 +180,10 @@ class WorkflowRunResult:
     # ``score`` is intentionally generic here to avoid a models↔scoring import
     # cycle.  At runtime it is a ``CleanTaskScore`` from ``scoring.py``.
     score: Any | None = None
+    # Keeping the run's events in the result lets paired fault analysis inspect
+    # exactly which downstream steps read an injected artifact without needing
+    # to reload a JSONL file from disk.
+    trace_events: tuple[dict[str, Any], ...] = ()
+    # Fault records are generic here for the same reason as ``score``: the
+    # concrete dataclass lives in faults.py and must not create an import cycle.
+    fault_records: tuple[Any, ...] = ()

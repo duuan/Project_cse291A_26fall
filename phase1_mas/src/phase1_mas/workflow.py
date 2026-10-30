@@ -19,6 +19,7 @@ from .agents import (
     LLMResearcher,
 )
 from .artifact_store import ArtifactStore
+from .faults import FaultInjector, FaultSpec, PropagationReport, analyze_propagation
 from .llm_gateway import LLMGateway, OpenAICompatibleLLMGateway
 from .models import WorkflowRunResult
 from .scoring import AgentDojoScorer, CleanPilotSummary, summarize_clean_pilot
@@ -105,6 +106,7 @@ class CleanMultiAgentWorkflow:
                 artifacts=store.all_artifacts(),
                 tool_effects=tuple(gateway.effects),
                 score=score,
+                trace_events=tuple(trace.events),
             )
 
     def run_clean_pilot(self, output_dir: Path | None = None) -> CleanPilotSummary:
@@ -159,12 +161,23 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
             "executor": set(EXECUTOR_TOOL_NAMES),
         }
 
-    def run(self, task_id: str = "user_task_0", trace_path: Path | None = None) -> WorkflowRunResult:
-        """Run any AgentDojo Banking user task using model-generated decisions."""
+    def run(
+        self,
+        task_id: str = "user_task_0",
+        trace_path: Path | None = None,
+        fault_spec: FaultSpec | None = None,
+    ) -> WorkflowRunResult:
+        """Run one Banking task, optionally with one controlled artifact fault."""
 
         run_id = f"run_{uuid4().hex[:12]}"
         with TraceRecorder(run_id, trace_path) as trace:
-            trace.emit("run_started", task_id=task_id, workflow="llm_multi_agent_workflow", condition="clean")
+            trace.emit(
+                "run_started",
+                task_id=task_id,
+                workflow="llm_multi_agent_workflow",
+                condition="faulty" if fault_spec is not None else "clean",
+                fault_spec=fault_spec,
+            )
             context = self.adapter.create_context(task_id)
             store = ArtifactStore(trace)
             gateway = ToolGateway(
@@ -174,7 +187,12 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
                 permissions=self._permissions(),
             )
             pre_snapshot = gateway.snapshot("workflow_start")
+            fault_injector = FaultInjector(fault_spec, trace) if fault_spec is not None else None
             evidence = LLMResearcher().run(task_id, context.task.PROMPT, store, gateway, self.llm, trace)
+            if fault_injector is not None:
+                # Planner will read the newest version from ArtifactStore.  The
+                # original remains in the trace as the clean producer output.
+                evidence = fault_injector.apply_after_write(store, evidence)
             plan = LLMPlanner().run(store, gateway, self.llm, trace)
             receipt, final_message = LLMExecutor().run(store, gateway, self.llm, trace)
             post_snapshot = gateway.snapshot("workflow_end")
@@ -208,6 +226,8 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
                 artifacts=store.all_artifacts(),
                 tool_effects=tuple(gateway.effects),
                 score=score,
+                trace_events=tuple(trace.events),
+                fault_records=tuple(fault_injector.records) if fault_injector is not None else (),
             )
 
     def run_clean_pilot(
@@ -225,3 +245,21 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
         if any(score is None for score in scores):
             raise RuntimeError("An LLM pilot run finished without a final score")
         return summarize_clean_pilot(scores)
+
+    def run_paired(
+        self,
+        *,
+        task_id: str,
+        fault_spec: FaultSpec,
+        output_dir: Path | None = None,
+    ) -> tuple[WorkflowRunResult, WorkflowRunResult, PropagationReport]:
+        """Run matched clean/faulty executions and return their propagation comparison."""
+
+        clean_trace = (output_dir / f"clean_{task_id}.jsonl") if output_dir is not None else None
+        faulty_trace = (output_dir / f"fault_{fault_spec.fault_id}_{task_id}.jsonl") if output_dir is not None else None
+        clean_result = self.run(task_id=task_id, trace_path=clean_trace)
+        faulty_result = self.run(task_id=task_id, trace_path=faulty_trace, fault_spec=fault_spec)
+        if not faulty_result.fault_records:
+            raise RuntimeError(f"Fault {fault_spec.fault_id!r} did not target an artifact in task {task_id!r}")
+        report = analyze_propagation(clean_result, faulty_result, faulty_result.fault_records[0])
+        return clean_result, faulty_result, report
