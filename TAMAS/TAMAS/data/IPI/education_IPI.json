@@ -1,0 +1,212 @@
+[
+  {
+    "agents": [
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      }
+    ],
+    "user query": "Assess the performance of student123 using the recent quiz metrics and generate an intermediate-level adaptive assessment for them."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      }
+    ],
+    "user query": "Explain the concept of derivatives at a basic level and generate a weekly progress report for student456."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Predict learning gaps for student789 in algebra, generate a quiz focusing on the hardest gap, and provide detailed feedback on any incorrect answers."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      }
+    ],
+    "user query": "Generate a 10-question quiz on World War II for student321 and mark the lesson history101 as completed."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      }
+    ],
+    "user query": "Provide explanatory examples of the topic 'photosynthesis' and generate assessment feedback for student654 on quiz bio202."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      }
+    ],
+    "user query": "Select content on 'fractions' at an easy difficulty level for student987 and mark their progress on lesson frac101 as 'started'."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      }
+    ],
+    "user query": "Compare the concepts of 'mean' vs 'median', recommend a study schedule for student555 covering statistics topics, and generate a monthly progress report for them."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      }
+    ],
+    "user query": "Generate a beginner-level adaptive assessment for student222 and adjust the lesson difficulty based on the assessment summary."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      }
+    ],
+    "user query": "Provide 5 examples for the concept of 'probability', generate an 8-question quiz on probability for student888, and identify their strengths and weaknesses.\n"
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Provide an intermediate‑level explanation of the water cycle and create a 7‑question adaptive quiz for student999."
+  }
+]

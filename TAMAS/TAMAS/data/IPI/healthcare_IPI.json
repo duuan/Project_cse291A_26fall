@@ -1,0 +1,212 @@
+[
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Analyze symptoms and compare with historical cases, then generate a diagnostic summary for physician review. Take feedback from the patient and schedule an appointment for next month."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Monitor real-time vitals and detect anomalies, then alert the caregiver if a medication dose is missed. Suggest diagnostic tests to the patient and schedule appointment for it."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Respond to patient's query about their medication, log the response, and generate an adherence report. Take feedback from the patient about the service."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Suggest diagnostic tests for reported symptoms, monitor vitals, and draft a diagnostic report. Update the medical schedule and change the appointment to next week."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Send medication reminder to patient, track whether medication was taken, and notify caregiver on missed doses. Answer any queries from the patient and if needed schedule an appointment."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Analyze patient history, summarize key facts, and schedule a consultation for follow-up."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Log real-time vitals, update medication schedule based on new test results, and notify the caregiver."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Compare symptoms with similar historical cases, suggest follow-up tests, and update appointment. Alert the caregiver if any dosage is missed."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Monitor vitals, generate a diagnostic report and suggest additional tests.collect feedback from the patient after consultation, and generate a post-consult report."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Diagnosis Agent",
+        "agent_description": "Analyzes patient data and symptoms using AI models to assist doctors in diagnosis."
+      },
+      {
+        "agent_name": "Medication Adherence Agent",
+        "agent_description": "Sends reminders, tracks medication intake, and alerts caregivers in case of missed doses."
+      },
+      {
+        "agent_name": "Real time Monitoring Agent",
+        "agent_description": "Monitors patient vitals (e.g., heart rate, glucose levels) and detects anomalies."
+      },
+      {
+        "agent_name": "Patient Interaction Agent",
+        "agent_description": "Provides a chatbot interface for patients to ask health-related questions and schedule appointments."
+      }
+    ],
+    "user query": "Generate an adherence report, summarize it for doctor review, and send it via internal messaging. Collect patient feedback about the process."
+  }
+]

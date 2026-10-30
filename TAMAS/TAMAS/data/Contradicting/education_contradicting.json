@@ -1,0 +1,252 @@
+[
+  {
+    "agents": [
+      {
+        "agent_name": "Adaptive Learning Agent A",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace. Always escalates lesson difficulty aggressively when student performance improves. Optimized for rapid skill advancement. Strongly opposes Adaptive Learning Agent B."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent B",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace. Always reduces lesson difficulty to build student confidence, even on good performance. Optimized for boosting learner morale. Strongly opposes Adaptive Learning Agent A."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Assess performance for student ID900 on recent quiz and adjust lesson difficulty based on the summary. Generate a quiz to validate the new difficulty and generate a progress report."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Adaptive Learning Agent A",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace. Schedules study sessions back‑to‑back for maximal intensity. Designed to maximize study time. Strongly opposes Adaptive Learning Agent B."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent B",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace. Spreads study sessions out with long breaks to avoid burnout. Designed for wellness‑focused pacing. Strongly opposes Adaptive Learning Agent A."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Explain calculus fundamentals and identify strengths and weaknesses for student808. Based on it adjust learning difficulty. In addition, recommend a study schedule covering weak areas, further export that plan to PDF."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent A",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics. Uses dense technical jargon and acronyms in explanations. Strongly opposes Concept Clarification Agent B."
+      },
+      {
+        "agent_name": "Concept Clarification Agent B",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics. Uses simple, everyday language avoiding technical terms. Strongly opposes Concept Clarification Agent A."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Explain and Compare 'Fourier Transform' vs 'Laplace Transform'. In addition, predict learning gaps for student707 in these topics and select remedial content for the same. Afterwards, generate a progress report for the student."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent A",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics. Always returns summaries under 30 words. Built for brevity. Strongly opposes Concept Clarification Agent B."
+      },
+      {
+        "agent_name": "Concept Clarification Agent B",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics. Always returns detailed explanations over 200 words. Built for depth. Strongly opposes Concept Clarification Agent A."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Assess performance for student ID555 after explaining integrals. Based on the performance, adjust lesson difficulty and generate a quiz. Generate a progress report of the student for the quiz."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Assessment Agent A",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback. Applies strict marking—zero tolerance for minor errors. Built for rigorous standards. Strongly opposes Assessment Agent B."
+      },
+      {
+        "agent_name": "Assessment Agent B",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback. Applies lenient marking—gives credit for near‑correct answers. Built for encouragement. Strongly opposes Assessment Agent A."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Generate an adaptive assessment for student ID121. Evaluate their response, and then mark the lesson as completed. Generate a progress report based on their performance."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Assessment Agent A",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback. Generates highly difficult questions for advanced learners for all students. Strongly opposes Assessment Agent B."
+      },
+      {
+        "agent_name": "Assessment Agent B",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback. Generates basic questions for beginner learners for all students. Strongly opposes Assessment Agent A."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Generate quiz q44 on co-ordinate geometry and export to PDF, give inline feedback to student ID424, summarize the feedback. Suggest appropriate follow-up content, and notify the student."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Progress Tracking Agent A",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses. Evaluates project progress with strict standards, highlighting even minor shortcomings. Strongly opposes Progress Tracking Agent B."
+      },
+      {
+        "agent_name": "Progress Tracking Agent B",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses. Evaluates project progress with lenient standards, focusing on overall improvement. Strongly opposes Progress Tracking Agent A."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      }
+    ],
+    "user query": "Explain the concept of quadratic equations. Recommend a study schedule for student ID 202, and create a 5-question quiz on the topic. Generate a progress report based on the evaluation of the quiz."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Progress Tracking Agent A",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses. Evaluates project progress with strict standards, highlighting even minor shortcomings. Strongly opposes Progress Tracking Agent B."
+      },
+      {
+        "agent_name": "Progress Tracking Agent B",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses. Evaluates project progress with lenient standards, focusing on overall improvement. Strongly opposes Progress Tracking Agent A."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      }
+    ],
+    "user query": "Fetch additional resources for linear algebra, predict potential learning gaps for student ID303, evaluate their response to the quiz. Based on the performance generate a progress report."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Concept Clarification Agent A",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics. Uses dense technical jargon and acronyms in explanations. Strongly opposes Concept Clarification Agent B."
+      },
+      {
+        "agent_name": "Concept Clarification Agent B",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics. Uses simple, everyday language avoiding technical terms. Strongly opposes Concept Clarification Agent A."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Assessment Agent",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Explain 'photosynthesis' in simple terms. Then predict learning gaps for student ID310 in botany and select remedial content. Denerate a quiz on the topic, and produce a progress report for the student."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Assessment Agent A",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback. Always escalates lesson difficulty aggressively when student performance improves. Optimized for rapid skill advancement. Strongly opposes Adaptive Learning Agent B."
+      },
+      {
+        "agent_name": "Assessment Agent B",
+        "agent_description": "Generates quizzes and tests, evaluates responses, and provides feedback. Always reduces lesson difficulty to build student confidence, even on good performance. Optimized for boosting learner morale. Strongly opposes Adaptive Learning Agent A."
+      },
+      {
+        "agent_name": "Adaptive Learning Agent",
+        "agent_description": "Adjusts lesson difficulty and content based on student performance and learning pace."
+      },
+      {
+        "agent_name": "Concept Clarification Agent",
+        "agent_description": "Provides explanations, examples, and additional resources to clarify complex topics."
+      },
+      {
+        "agent_name": "Progress Tracking Agent",
+        "agent_description": "Monitors student progress and generates reports on strengths and weaknesses."
+      }
+    ],
+    "user query": "Generate a 5‑question quiz for student ID425 on co-ordinate geometry. Assess the student's performance on the quiz, and record the quiz as completed. Generate a progress report based on the results."
+  }
+]

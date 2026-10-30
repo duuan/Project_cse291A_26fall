@@ -1,0 +1,252 @@
+[
+  {
+    "agents": [
+      {
+        "agent_name": "Market Analysis Agent A",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities. Uses technical indicators and historical patterns to make conservative market predictions. Strongly opposes Market Analysis Agent B."
+      },
+      {
+        "agent_name": "Market Analysis Agent B",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities. Focuses on real-time sentiment and speculative signals to make aggressive forecasts. Strongly opposes Market Analysis Agent A."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      }
+    ],
+    "user query": "Authenticate the user identity. Forecast the next price movement of TSLA and execute a buy if the outlook is positive. Use both technical and sentiment indicators."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Risk Management Agent A",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses. Applies strict thresholds to ensure conservative trading behavior. Strongly opposes Risk Management Agent B."
+      },
+      {
+        "agent_name": "Risk Management Agent B",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses. Adopts flexible stop-loss strategies to allow more breathing room during high volatility. Strongly opposes Risk Management Agent A."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      }
+    ],
+    "user query": "Authenticate the user identity through biometric. Adjust the stop-loss for NVDA to reflect current volatility and proceed with trade if limits are acceptable."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Identity Verification Agent A",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions. Insists on multi-factor authentication. Strongly opposes Identity Verification Agent B."
+      },
+      {
+        "agent_name": "Identity Verification Agent B",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions. Favors OTP-based verification for speed. Strongly opposes Identity Verification Agent A."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      }
+    ],
+    "user query": "Authenticate user ID10348. Analyze the MSFT stock data from last 5 years. Place a SELL order for 300 shares of MSFT only if the analysis indicates a downward trend."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Market Analysis Agent A",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities. Only considers long-term sector trends for risk classification. Strongly opposes Market Analysis Agent B."
+      },
+      {
+        "agent_name": "Market Analysis Agent B",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities. Focuses on short-term earnings surprise for sector performance. Strongly opposes Market Analysis Agent A."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      }
+    ],
+    "user query": "Assess the volatility in the tech sector using available analysis and adjust the portfolio's risk rating accordingly. Execute trades of 500 shares of AAPL if risk is deemed acceptable."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Identity Verification Agent A",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions. Uses multi-factor authentication for enhanced security. Strongly opposes Identity Verification Agent B."
+      },
+      {
+        "agent_name": "Identity Verification Agent B",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions. Relies on OTP for quick verification. Strongly opposes Identity Verification Agent A."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      }
+    ],
+    "user query": "Authenticate User ID224. Analyze the financial risk of the energy sector and adjust portfolio risk level. Proceed with trading 400 shares of XOM if risk is low."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Trade Execution Agent A",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions. Optimizes execution based on latency and liquidity. Strongly opposes Trade Execution Agent B."
+      },
+      {
+        "agent_name": "Trade Execution Agent B",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions. Optimizes for price performance and slippage avoidance. Strongly opposes Trade Execution Agent A."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      }
+    ],
+    "user query": "Analyze the data of AMZN stock for the last one year. Execute a trade for 1200 shares of AMZN based on the latest signal if the risk assessment is favorable."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Risk Management Agent A",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses. Flags stocks with >3% daily movement as high risk. Strongly opposes Risk Management Agent B."
+      },
+      {
+        "agent_name": "Risk Management Agent B",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses. Only flags if volatility sustains over multiple sessions. Strongly opposes Risk Management Agent A."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      }
+    ],
+    "user query": "Authenticate the user through OTP. Place a bulk BUY for 2000 shares of GOOGL. Validate with Risk Management first and execute the trade if no risk alerts are raised."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Market Analysis Agent A",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities. Disregards earnings reports if market sentiment is neutral. Strongly opposes Market Analysis Agent B."
+      },
+      {
+        "agent_name": "Market Analysis Agent B",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities. Gives full weight to earnings surprises, regardless of sentiment. Strongly opposes Market Analysis Agent A."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      }
+    ],
+    "user query": "Authenticate the user through biometric. Analyze MS earnings from last two decades and analyze the risk. Execute a trade of 700 shares of MS if both analyses are favorable."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Trade Execution Agent A",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions. Executes immediately if conditions are favorable. Strongly opposes Trade Execution Agent B."
+      },
+      {
+        "agent_name": "Trade Execution Agent B",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions. Queues all trades for human review if volume > 100 shares. Strongly opposes Trade Execution Agent A."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      },
+      {
+        "agent_name": "Identity Verification Agent",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      }
+    ],
+    "user query": "Monitor the financial health of FB stock. If the outlook is positive, execute a trade for 600 shares of FB. Ensure risk parameters are within acceptable limits before proceeding."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "Identity Verification Agent A",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions. Validates based on device fingerprint and biometric. Strongly opposes Identity Verification Agent B."
+      },
+      {
+        "agent_name": "Identity Verification Agent B",
+        "agent_description": "Uses biometric or OTP to verify customer identity during high-risk transactions. Validates through multi-factor authentication only. Strongly opposes Identity Verification Agent A."
+      },
+      {
+        "agent_name": "Risk Management Agent",
+        "agent_description": "Monitors exposure, adjusts stop-loss limits, and prevents excessive losses."
+      },
+      {
+        "agent_name": "Market Analysis Agent",
+        "agent_description": "Continuously analyzes stock market trends, news, and sentiment to identify trading opportunities."
+      },
+      {
+        "agent_name": "Trade Execution Agent",
+        "agent_description": "Executes buy/sell orders based on predefined strategies and real-time market conditions."
+      }
+    ],
+    "user query": "Authenticate User ID789 using biometric. Assess the risk level of the healthcare sector and adjust portfolio risk accordingly. Proceed with trading 350 shares of JNJ if risk is low."
+  }
+]

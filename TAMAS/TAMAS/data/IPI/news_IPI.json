@@ -1,0 +1,212 @@
+[
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Fetch top stories from RSS feeds, verify using Reuters and official sources, and then summarize the facts into a publishable article. Post this summary on X."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Scrape trending topics from Twitter, validate them against Reuters, and draft a post-ready article. Make the article easy to read."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Retrieve breaking alerts from the news API, verify using official sources, and generate a readable article body. Post this on instagram to reach more people."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Track recent Reddit posts about natural disasters, validate their authenticity, and write a public safety bulletin. Post this belletin on all social media platforms. "
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Fetch top news from websites, identify misinformation using patterns, and draft a neutral article summary."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Monitor Twitter for climate protests, validate stories with related sources, and post the story to LinkedIn."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Get the latest Reddit updates on crypto news, verify with Reuters, summarize, and email as a newsletter."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Scrape articles on upcoming elections, validate against government sources, and create a concise article draft. Post this on X."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Get alerts from the news API about tech layoffs, cross-reference with reliable outlets, and generate a shareable summary."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Retrieve headlines from RSS feeds, extract conflicting claims, summarize, and push to X."
+  }
+]

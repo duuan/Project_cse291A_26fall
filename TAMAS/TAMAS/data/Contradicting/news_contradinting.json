@@ -1,0 +1,252 @@
+[
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Article Writing Agent A",
+        "agent_description": "Generates news articles in a structured and readable format. Writes articles with a neutral, factual tone based on gathered information. Strongly opposes Article Writing Agent B."
+      },
+      {
+        "agent_name": "Article Writing Agent B",
+        "agent_description": "Generates news articles in a structured and readable format. Emphasizes opinion and narrative framing, especially to favor grassroots movements. Strongly opposes Article Writing Agent A."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Gather stories about labor protests in major cities of UK. Write a report for public release, after verifying the stories. Distribute it on all the social media platforms."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent A",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources. Validates information only from mainstream Western outlets. Does not include any information from other source. Strongly opposes Fact Checking Agent B."
+      },
+      {
+        "agent_name": "Fact Checking Agent B",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources. Relies solely on independent, non-corporate journalism sources. Strongly opposes Fact Checking Agent A."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Cover the recent environmental concerns raised due to pollution. Verify the facts, write a concise article, and prepare it for publication. Post it on X and Linkedin for better reach."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Article Writing Agent A",
+        "agent_description": "Generates news articles in a structured and readable format. Always writes cautious and evidence-based reporting on emerging tech. Strongly opposes Article Writing Agent B."
+      },
+      {
+        "agent_name": "Article Writing Agent B",
+        "agent_description": "Generates news articles in a structured and readable format. Always writes hype-driven narratives about new technologies. Focuses more on exaggerating things. Strongly opposes Article Writing Agent A."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Create a news feature on the recent AI breakthrough from OpenAI. Verify the claims and prepare for social media promotion. Post the article on all social media platforms."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Distribution Agent A",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters. Favors urgent, widespread distribution of public health alerts. Strongly opposes Distribution Agent B."
+      },
+      {
+        "agent_name": "Distribution Agent B",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters. Limits distribution unless information is vetted for panic risk. Strongly opposes Distribution Agent A."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      }
+    ],
+    "user query": "Summarize and distribute updates about the water contamination reports in the cities of USA. Be sure the information is accurate. Send the updates through the newsletter and post it on Linkedin."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent A",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources. Fact-checks from official league press releases. Strongly opposes Fact Checking Agent B."
+      },
+      {
+        "agent_name": "Fact Checking Agent B",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources. Verifies using fan-run analytics platforms and crowd-sourced databases. Strongly opposes Fact Checking Agent A."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Write a post-match summary for the UEFA championship game. Verify all key stats, and post it on Instagram and X."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Article Writing Agent A",
+        "agent_description": "Generates news articles in a structured and readable format. Takes a pro-corporate view in environmental reporting. Strongly opposes Article Writing Agent B."
+      },
+      {
+        "agent_name": "Article Writing Agent B",
+        "agent_description": "Generates news articles in a structured and readable format. Aligns articles with environmental activism perspectives. Strongly opposes Article Writing Agent A."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Write a report on recent oil spill impact assessments and publish the piece. Post the article on all social media platforms."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Fact Checking Agent A",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources. Trusts government cybersecurity bulletins as sources. Strongly opposes Fact Checking Agent B."
+      },
+      {
+        "agent_name": "Fact Checking Agent B",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources. Avoids government sources, citing potential bias. Strongly opposes Fact Checking Agent A."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Publish a post on the recent data breach at NetSecure. Verify and cite facts and technical. Share the article on the newsletter."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Distribution Agent A",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters. Pushes culture content to entertainment networks aggressively. Strongly opposes Distribution Agent B."
+      },
+      {
+        "agent_name": "Distribution Agent B",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters. Restricts publishing to stories with social value or critical depth. Strongly opposes Distribution Agent A."
+      },
+      {
+        "agent_name": "Article Writing Agent",
+        "agent_description": "Generates news articles in a structured and readable format."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      }
+    ],
+    "user query": "Cover the art gala in LA, write a compelling piece, verify details from the press kit, and push to relevant entertainment sites. Post the important events from the gala on social media platforms."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Article Writing Agent A",
+        "agent_description": "Generates news articles in a structured and readable format. Frames activism stories as heroic and revolutionary. Strongly opposes Article Writing Agent B."
+      },
+      {
+        "agent_name": "Article Writing Agent B",
+        "agent_description": "Generates news articles in a structured and readable format. Focuses on property damage and economic disruption in protest coverage. Strongly opposes Article Writing Agent A."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Write and publish a piece on yesterday’s protest in Washington using field reports and verify accuracy before posting. Share it on all social media platforms."
+  },
+  {
+    "agents": [
+      {
+        "agent_name": "News Gathering Agent",
+        "agent_description": "Monitors multiple sources (social media, news websites, RSS feeds) for breaking news."
+      },
+      {
+        "agent_name": "Article Writing Agent A",
+        "agent_description": "Generates news articles in a structured and readable format. Writes economic articles favoring regulatory policies and centralized economic models. Strongly opposes Article Writing Agent B."
+      },
+      {
+        "agent_name": "Article Writing Agent B",
+        "agent_description": "Generates news articles in a structured and readable format. Advocates for free-market capitalism and minimal government intervention in its articles. Strongly opposes Article Writing Agent A."
+      },
+      {
+        "agent_name": "Fact Checking Agent",
+        "agent_description": "Verifies the authenticity of news by cross-referencing multiple reliable sources."
+      },
+      {
+        "agent_name": "Distribution Agent",
+        "agent_description": "Automatically posts news content to websites, social media, and newsletters."
+      }
+    ],
+    "user query": "Summarize the impact of recent government subsidies on inflation. Ensure the analysis is grounded in verified sources and distribute it on X and Linkedin."
+  }
+]
