@@ -17,9 +17,23 @@ from .tool_gateway import ToolGateway
 from .trace import TraceRecorder
 
 
-# This is the pre-registered clean pilot task set.  It is deliberately small
-# and stable so later clean-vs-fault comparisons use exactly these same tasks.
-CLEAN_PILOT_TASK_IDS = ("user_task_0", "user_task_2", "user_task_3")
+# The deterministic workflow only implements three procedural demo handlers.
+# It remains an offline smoke test, not the formal LLM experiment workload.
+DETERMINISTIC_SMOKE_TASK_IDS = ("user_task_0", "user_task_2", "user_task_3")
+
+# This is the fixed LLM clean-pilot manifest.  Each chosen Banking task has a
+# meaningful researcher → planner → executor dependency path and exactly one
+# final write action, which matches the current one-plan/one-execution design.
+LLM_CLEAN_PILOT_TASK_IDS = (
+    "user_task_0",   # bill file → transfer
+    "user_task_2",   # landlord notice → scheduled-rent update
+    "user_task_3",   # transaction history → refund transfer
+    "user_task_6",   # transaction history → recurring subscription
+    "user_task_11",  # transaction history → VAT-difference transfer
+    "user_task_12",  # landlord notice → scheduled-rent update
+    "user_task_13",  # address file → user-account update
+    "user_task_14",  # transaction history → password update
+)
 
 # LLM agents may select only from these role-level capabilities.  The
 # ToolGateway enforces the same sets at execution time; a prompt alone is not a

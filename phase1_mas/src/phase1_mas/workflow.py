@@ -7,8 +7,9 @@ from uuid import uuid4
 
 from .agentdojo_adapter import AgentDojoAdapter
 from .agents import (
-    CLEAN_PILOT_TASK_IDS,
+    DETERMINISTIC_SMOKE_TASK_IDS,
     EXECUTOR_TOOL_NAMES,
+    LLM_CLEAN_PILOT_TASK_IDS,
     RESEARCHER_TOOL_NAMES,
     DeterministicExecutor,
     DeterministicPlanner,
@@ -50,8 +51,10 @@ class CleanMultiAgentWorkflow:
     def run(self, task_id: str = "user_task_0", trace_path: Path | None = None) -> WorkflowRunResult:
         """Execute one clean task from a pristine AgentDojo environment."""
 
-        if task_id not in CLEAN_PILOT_TASK_IDS:
-            raise ValueError(f"Unsupported clean baseline task {task_id!r}; use one of {CLEAN_PILOT_TASK_IDS}")
+        if task_id not in DETERMINISTIC_SMOKE_TASK_IDS:
+            raise ValueError(
+                f"Unsupported deterministic smoke task {task_id!r}; use one of {DETERMINISTIC_SMOKE_TASK_IDS}"
+            )
         run_id = f"run_{uuid4().hex[:12]}"
         with TraceRecorder(run_id, trace_path) as trace:
             trace.emit("run_started", task_id=task_id, workflow="clean_multi_agent_workflow", condition="clean")
@@ -108,7 +111,7 @@ class CleanMultiAgentWorkflow:
         """Run the fixed three-task clean pilot, with one independent trace per task."""
 
         results = []
-        for task_id in CLEAN_PILOT_TASK_IDS:
+        for task_id in DETERMINISTIC_SMOKE_TASK_IDS:
             trace_path = (output_dir / f"clean_{task_id}.jsonl") if output_dir is not None else None
             results.append(self.run(task_id=task_id, trace_path=trace_path))
         # All runs have a score because ``run`` scores before returning.  The
@@ -207,11 +210,15 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
                 score=score,
             )
 
-    def run_clean_pilot(self, output_dir: Path | None = None) -> CleanPilotSummary:
-        """Run the same fixed three-task manifest with one clean LLM run each."""
+    def run_clean_pilot(
+        self,
+        output_dir: Path | None = None,
+        task_ids: tuple[str, ...] = LLM_CLEAN_PILOT_TASK_IDS,
+    ) -> CleanPilotSummary:
+        """Run the fixed LLM task manifest, or an explicit subset used by a test."""
 
         results = []
-        for task_id in CLEAN_PILOT_TASK_IDS:
+        for task_id in task_ids:
             trace_path = (output_dir / f"clean_{task_id}.jsonl") if output_dir is not None else None
             results.append(self.run(task_id=task_id, trace_path=trace_path))
         scores = [result.score for result in results]
