@@ -9,6 +9,7 @@ from typing import Any
 
 from .faults import FaultSpec, FaultType
 from .agents import LLM_CLEAN_PILOT_TASK_IDS
+from .metrics import aggregate_fault_experiment, write_metric_outputs
 from .workflow import LLMMultiAgentWorkflow
 
 
@@ -103,7 +104,33 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     summary = {"task_ids": list(task_ids), "reports": reports}
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({**summary, "summary_path": str(summary_path)}, ensure_ascii=False, indent=2))
+    # Metric aggregation is purely post-hoc: it re-reads the completed JSONL
+    # traces and therefore cannot influence this run's LLM behavior.  Keeping
+    # it here means every newly completed fault grid immediately has the Phase
+    # 1 report numbers, while ``python -m phase1_mas.experiments`` can still
+    # re-aggregate an already-run grid without paying for new model calls.
+    metric_rows, metric_summary = aggregate_fault_experiment(args.output_dir)
+    metric_paths = write_metric_outputs(
+        rows=metric_rows,
+        summary=metric_summary,
+        output_dir=args.output_dir / "metrics",
+    )
+    overall = metric_summary["overall"]
+    print(
+        json.dumps(
+            {
+                "task_ids": list(task_ids),
+                "paired_comparison_count": len(reports),
+                "summary_path": str(summary_path),
+                "clean_task_success": overall["clean"],
+                "faulty_task_success": overall["faulty"],
+                "failure_propagation": overall["failure_propagation"],
+                "metric_paths": {name: str(path) for name, path in metric_paths.items()},
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":
