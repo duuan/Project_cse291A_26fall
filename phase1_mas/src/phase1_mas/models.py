@@ -128,6 +128,30 @@ class ToolExecution:
 
 
 @dataclass(frozen=True)
+class LLMCallRecord:
+    """Auditable provider usage and timing for one agent-model interaction."""
+
+    llm_call_id: str
+    agent_id: str
+    step_id: str
+    provider: str
+    model: str
+    temperature: float
+    seed: int | None
+    prompt_hash: str
+    response_hash: str
+    input_tokens: int | None
+    output_tokens: int | None
+    estimated_cost_usd: float | None
+    started_at: str
+    ended_at: str
+    latency_ms: float
+    timeout_seconds: float | None
+    retry_count: int
+    error: str | None = None
+
+
+@dataclass(frozen=True)
 class StepRecord:
     """A compact summary of a deterministic agent step for later analysis."""
 

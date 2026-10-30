@@ -5,6 +5,6 @@ AgentDojo remains an external task/environment provider rather than being modifi
 """
 
 # Re-export stable workflow entry points so scripts do not import internals.
-from .workflow import CleanMultiAgentWorkflow, DeterministicPaymentWorkflow
+from .workflow import CleanMultiAgentWorkflow, DeterministicPaymentWorkflow, LLMMultiAgentWorkflow
 
-__all__ = ["CleanMultiAgentWorkflow", "DeterministicPaymentWorkflow"]
+__all__ = ["CleanMultiAgentWorkflow", "DeterministicPaymentWorkflow", "LLMMultiAgentWorkflow"]

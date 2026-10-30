@@ -5,8 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "phase1-mas"
 version = "0.1.0"
-description = "Deterministic multi-agent fault-injection workflow for the course project"
+description = "LLM multi-agent fault-injection workflow for the course project"
 requires-python = ">=3.10"
+dependencies = [
+    # The gateway imports this lazily, so non-LLM unit tests still run without
+    # an API key.  AgentDojo depends on it too, but declaring it here makes this
+    # package runnable independently.
+    "openai>=1.59.7",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

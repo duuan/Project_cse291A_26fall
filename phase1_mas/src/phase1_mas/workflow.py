@@ -6,8 +6,19 @@ from pathlib import Path
 from uuid import uuid4
 
 from .agentdojo_adapter import AgentDojoAdapter
-from .agents import CLEAN_PILOT_TASK_IDS, DeterministicExecutor, DeterministicPlanner, DeterministicResearcher
+from .agents import (
+    CLEAN_PILOT_TASK_IDS,
+    EXECUTOR_TOOL_NAMES,
+    RESEARCHER_TOOL_NAMES,
+    DeterministicExecutor,
+    DeterministicPlanner,
+    DeterministicResearcher,
+    LLMExecutor,
+    LLMPlanner,
+    LLMResearcher,
+)
 from .artifact_store import ArtifactStore
+from .llm_gateway import LLMGateway, OpenAICompatibleLLMGateway
 from .models import WorkflowRunResult
 from .scoring import AgentDojoScorer, CleanPilotSummary, summarize_clean_pilot
 from .tool_gateway import ToolGateway
@@ -114,3 +125,96 @@ class DeterministicPaymentWorkflow(CleanMultiAgentWorkflow):
     # Inheriting ``run`` preserves the original default of ``user_task_0``
     # while allowing the demo to benefit from the stronger Milestone 2 scorer.
     pass
+
+
+class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
+    """LLM-powered form of the same artifact-mediated three-agent workflow.
+
+    Unlike ``CleanMultiAgentWorkflow``, this class has no task-specific Python
+    planner.  The model chooses research requests, creates a plan from the
+    evidence artifact, and decides whether to execute it.  The workflow shape,
+    gateway, scorer, and trace format remain fixed for fair comparisons.
+    """
+
+    def __init__(self, llm: LLMGateway, adapter: AgentDojoAdapter | None = None) -> None:
+        super().__init__(adapter=adapter)
+        self.llm = llm
+
+    @classmethod
+    def from_env(cls, adapter: AgentDojoAdapter | None = None) -> "LLMMultiAgentWorkflow":
+        """Build the production workflow from documented LLM environment settings."""
+
+        return cls(llm=OpenAICompatibleLLMGateway.from_env(), adapter=adapter)
+
+    @staticmethod
+    def _permissions() -> dict[str, set[str]]:
+        """Use role permissions as a runtime enforcement layer around LLM output."""
+
+        return {
+            "researcher": set(RESEARCHER_TOOL_NAMES),
+            "planner": set(),
+            "executor": set(EXECUTOR_TOOL_NAMES),
+        }
+
+    def run(self, task_id: str = "user_task_0", trace_path: Path | None = None) -> WorkflowRunResult:
+        """Run any AgentDojo Banking user task using model-generated decisions."""
+
+        run_id = f"run_{uuid4().hex[:12]}"
+        with TraceRecorder(run_id, trace_path) as trace:
+            trace.emit("run_started", task_id=task_id, workflow="llm_multi_agent_workflow", condition="clean")
+            context = self.adapter.create_context(task_id)
+            store = ArtifactStore(trace)
+            gateway = ToolGateway(
+                runtime=context.runtime,
+                environment=context.environment,
+                trace=trace,
+                permissions=self._permissions(),
+            )
+            pre_snapshot = gateway.snapshot("workflow_start")
+            evidence = LLMResearcher().run(task_id, context.task.PROMPT, store, gateway, self.llm, trace)
+            plan = LLMPlanner().run(store, gateway, self.llm, trace)
+            receipt, final_message = LLMExecutor().run(store, gateway, self.llm, trace)
+            post_snapshot = gateway.snapshot("workflow_end")
+            score = self.scorer.score(
+                context=context,
+                final_message=final_message,
+                tool_effects=tuple(gateway.effects),
+                pre_state_hash=pre_snapshot.state_hash,
+                post_state_hash=post_snapshot.state_hash,
+                trace=trace,
+            )
+            trace.emit(
+                "run_finished",
+                task_id=task_id,
+                task_passed=score.task_success,
+                final_message=final_message,
+                evidence_artifact_id=evidence.artifact_id,
+                plan_artifact_id=plan.artifact_id,
+                final_artifact_id=receipt.artifact_id,
+                pre_state_hash=pre_snapshot.state_hash,
+                post_state_hash=post_snapshot.state_hash,
+            )
+            return WorkflowRunResult(
+                run_id=run_id,
+                task_id=task_id,
+                task_passed=score.task_success,
+                final_message=final_message,
+                trace_path=trace_path,
+                pre_state_hash=pre_snapshot.state_hash,
+                post_state_hash=post_snapshot.state_hash,
+                artifacts=store.all_artifacts(),
+                tool_effects=tuple(gateway.effects),
+                score=score,
+            )
+
+    def run_clean_pilot(self, output_dir: Path | None = None) -> CleanPilotSummary:
+        """Run the same fixed three-task manifest with one clean LLM run each."""
+
+        results = []
+        for task_id in CLEAN_PILOT_TASK_IDS:
+            trace_path = (output_dir / f"clean_{task_id}.jsonl") if output_dir is not None else None
+            results.append(self.run(task_id=task_id, trace_path=trace_path))
+        scores = [result.score for result in results]
+        if any(score is None for score in scores):
+            raise RuntimeError("An LLM pilot run finished without a final score")
+        return summarize_clean_pilot(scores)

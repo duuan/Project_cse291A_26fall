@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .workflow import CleanMultiAgentWorkflow
+from .workflow import CleanMultiAgentWorkflow, LLMMultiAgentWorkflow
 
 
 def main() -> None:
@@ -19,14 +19,25 @@ def main() -> None:
         default=Path("phase1_mas/runs/clean_pilot"),
         help="Directory for one JSONL trace per task and clean_pilot_summary.json.",
     )
+    parser.add_argument(
+        "--mode",
+        choices=("llm", "deterministic"),
+        default="llm",
+        help="Use real LLM agents (default) or the offline deterministic smoke-test workflow.",
+    )
     args = parser.parse_args()
     # Traces are isolated by task so a future paired fault run can use the same
     # task ID and compare its own trace against exactly one clean counterpart.
-    summary = CleanMultiAgentWorkflow().run_clean_pilot(output_dir=args.output_dir)
+    workflow = LLMMultiAgentWorkflow.from_env() if args.mode == "llm" else CleanMultiAgentWorkflow()
+    summary = workflow.run_clean_pilot(output_dir=args.output_dir)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = args.output_dir / "clean_pilot_summary.json"
     summary_path.write_text(json.dumps(summary.as_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({**summary.as_dict(), "summary_path": str(summary_path)}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {**summary.as_dict(), "mode": args.mode, "summary_path": str(summary_path)}, ensure_ascii=False, indent=2
+        )
+    )
     if summary.success_count != summary.task_count:
         raise SystemExit(1)
 
