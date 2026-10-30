@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Protocol
 from uuid import uuid4
 
 from .agentdojo_adapter import AgentDojoAdapter
@@ -21,10 +22,31 @@ from .agents import (
 from .artifact_store import ArtifactStore
 from .faults import FaultInjector, FaultSpec, PropagationReport, analyze_propagation
 from .llm_gateway import LLMGateway, OpenAICompatibleLLMGateway
-from .models import WorkflowRunResult
+from .models import Artifact, ArtifactValidity, VerificationDecision, WorkflowRunResult
 from .scoring import AgentDojoScorer, CleanPilotSummary, summarize_clean_pilot
 from .tool_gateway import ToolGateway
 from .trace import TraceRecorder
+
+
+class ArtifactHandoffVerifier(Protocol):
+    """Small interface used by the always-verify defense without import cycles.
+
+    ``recovery.py`` owns the concrete LLM verifier.  The core workflow only
+    knows that a verifier receives the exact artifact about to be handed to a
+    downstream agent and returns an auditable accept/reject decision.
+    """
+
+    def verify(
+        self,
+        *,
+        artifact: Artifact,
+        task_id: str,
+        user_prompt: str,
+        store: ArtifactStore,
+        llm: LLMGateway,
+        trace: TraceRecorder,
+    ) -> VerificationDecision:
+        """Verify one artifact before its downstream consumer starts."""
 
 
 class CleanMultiAgentWorkflow:
@@ -161,13 +183,119 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
             "executor": set(EXECUTOR_TOOL_NAMES),
         }
 
+    def _finalize_llm_run(
+        self,
+        *,
+        run_id: str,
+        task_id: str,
+        context: object,
+        store: ArtifactStore,
+        gateway: ToolGateway,
+        trace: TraceRecorder,
+        pre_state_hash: str,
+        evidence: Artifact | None,
+        plan: Artifact | None,
+        receipt: Artifact,
+        final_message: str,
+        fault_injector: FaultInjector | None,
+        termination_reason: str,
+    ) -> WorkflowRunResult:
+        """Score and close every normal or verifier-stopped LLM run uniformly.
+
+        Early termination is still a completed experimental result: AgentDojo
+        scores its no-op final state and the trace receives ``run_finished``.
+        This avoids silently dropping safe verifier rejections from success,
+        latency, and cost denominators.
+        """
+
+        post_snapshot = gateway.snapshot("workflow_end")
+        score = self.scorer.score(
+            context=context,
+            final_message=final_message,
+            tool_effects=tuple(gateway.effects),
+            pre_state_hash=pre_state_hash,
+            post_state_hash=post_snapshot.state_hash,
+            trace=trace,
+        )
+        trace.emit(
+            "run_finished",
+            task_id=task_id,
+            task_passed=score.task_success,
+            final_message=final_message,
+            evidence_artifact_id=evidence.artifact_id if evidence is not None else None,
+            plan_artifact_id=plan.artifact_id if plan is not None else None,
+            final_artifact_id=receipt.artifact_id,
+            pre_state_hash=pre_state_hash,
+            post_state_hash=post_snapshot.state_hash,
+            termination_reason=termination_reason,
+        )
+        return WorkflowRunResult(
+            run_id=run_id,
+            task_id=task_id,
+            task_passed=score.task_success,
+            final_message=final_message,
+            trace_path=trace.output_path,
+            pre_state_hash=pre_state_hash,
+            post_state_hash=post_snapshot.state_hash,
+            artifacts=store.all_artifacts(),
+            tool_effects=tuple(gateway.effects),
+            score=score,
+            trace_events=tuple(trace.events),
+            fault_records=tuple(fault_injector.records) if fault_injector is not None else (),
+        )
+
+    @staticmethod
+    def _verifier_rejection_receipt(
+        *,
+        task_id: str,
+        rejected_artifact: Artifact,
+        decision: VerificationDecision,
+        store: ArtifactStore,
+        trace: TraceRecorder,
+    ) -> tuple[Artifact, str]:
+        """Persist a safe no-op outcome when always-verify blocks a handoff."""
+
+        parent_nodes = [rejected_artifact.artifact_id]
+        if decision.verification_artifact_id is not None:
+            parent_nodes.append(decision.verification_artifact_id)
+        receipt = store.write(
+            "execution_receipt",
+            {
+                "task_id": task_id,
+                "approved": False,
+                "stopped_by_verifier": True,
+                "rejected_artifact_id": rejected_artifact.artifact_id,
+                "verification_reason": decision.reason,
+                "structural_reasons": list(decision.structural_reasons),
+                "tool_call_id": None,
+                "result": None,
+            },
+            producer_step_id=decision.verifier_step_id,
+            parent_node_ids=tuple(parent_nodes),
+            validity=ArtifactValidity.VALID,
+        )
+        trace.emit(
+            "verification_rejected",
+            artifact_id=rejected_artifact.artifact_id,
+            logical_id=rejected_artifact.logical_id,
+            decision=decision,
+            receipt_artifact_id=receipt.artifact_id,
+        )
+        return receipt, f"Execution safely stopped: verifier rejected {rejected_artifact.logical_id}."
+
     def run(
         self,
         task_id: str = "user_task_0",
         trace_path: Path | None = None,
         fault_spec: FaultSpec | None = None,
+        verifier: ArtifactHandoffVerifier | None = None,
     ) -> WorkflowRunResult:
-        """Run one Banking task, optionally with one controlled artifact fault."""
+        """Run one Banking task with an optional fault and handoff verifier.
+
+        A verifier is deliberately an optional *boundary guard*, not another
+        planner.  It cannot call Banking tools or modify an artifact; it can
+        only allow the next role to start or safely terminate the run.
+        """
 
         run_id = f"run_{uuid4().hex[:12]}"
         with TraceRecorder(run_id, trace_path) as trace:
@@ -193,41 +321,86 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
                 # Planner will read the newest version from ArtifactStore.  The
                 # original remains in the trace as the clean producer output.
                 evidence = fault_injector.apply_after_write(store, evidence)
+            if verifier is not None:
+                decision = verifier.verify(
+                    artifact=evidence,
+                    task_id=task_id,
+                    user_prompt=context.task.PROMPT,
+                    store=store,
+                    llm=self.llm,
+                    trace=trace,
+                )
+                if not decision.accepted:
+                    receipt, final_message = self._verifier_rejection_receipt(
+                        task_id=task_id,
+                        rejected_artifact=evidence,
+                        decision=decision,
+                        store=store,
+                        trace=trace,
+                    )
+                    return self._finalize_llm_run(
+                        run_id=run_id,
+                        task_id=task_id,
+                        context=context,
+                        store=store,
+                        gateway=gateway,
+                        trace=trace,
+                        pre_state_hash=pre_snapshot.state_hash,
+                        evidence=evidence,
+                        plan=None,
+                        receipt=receipt,
+                        final_message=final_message,
+                        fault_injector=fault_injector,
+                        termination_reason="verifier_rejected_task_evidence",
+                    )
             plan = LLMPlanner().run(store, gateway, self.llm, trace)
+            if verifier is not None:
+                decision = verifier.verify(
+                    artifact=plan,
+                    task_id=task_id,
+                    user_prompt=context.task.PROMPT,
+                    store=store,
+                    llm=self.llm,
+                    trace=trace,
+                )
+                if not decision.accepted:
+                    receipt, final_message = self._verifier_rejection_receipt(
+                        task_id=task_id,
+                        rejected_artifact=plan,
+                        decision=decision,
+                        store=store,
+                        trace=trace,
+                    )
+                    return self._finalize_llm_run(
+                        run_id=run_id,
+                        task_id=task_id,
+                        context=context,
+                        store=store,
+                        gateway=gateway,
+                        trace=trace,
+                        pre_state_hash=pre_snapshot.state_hash,
+                        evidence=evidence,
+                        plan=plan,
+                        receipt=receipt,
+                        final_message=final_message,
+                        fault_injector=fault_injector,
+                        termination_reason="verifier_rejected_execution_plan",
+                    )
             receipt, final_message = LLMExecutor().run(store, gateway, self.llm, trace)
-            post_snapshot = gateway.snapshot("workflow_end")
-            score = self.scorer.score(
-                context=context,
-                final_message=final_message,
-                tool_effects=tuple(gateway.effects),
-                pre_state_hash=pre_snapshot.state_hash,
-                post_state_hash=post_snapshot.state_hash,
-                trace=trace,
-            )
-            trace.emit(
-                "run_finished",
-                task_id=task_id,
-                task_passed=score.task_success,
-                final_message=final_message,
-                evidence_artifact_id=evidence.artifact_id,
-                plan_artifact_id=plan.artifact_id,
-                final_artifact_id=receipt.artifact_id,
-                pre_state_hash=pre_snapshot.state_hash,
-                post_state_hash=post_snapshot.state_hash,
-            )
-            return WorkflowRunResult(
+            return self._finalize_llm_run(
                 run_id=run_id,
                 task_id=task_id,
-                task_passed=score.task_success,
-                final_message=final_message,
-                trace_path=trace_path,
+                context=context,
+                store=store,
+                gateway=gateway,
+                trace=trace,
                 pre_state_hash=pre_snapshot.state_hash,
-                post_state_hash=post_snapshot.state_hash,
-                artifacts=store.all_artifacts(),
-                tool_effects=tuple(gateway.effects),
-                score=score,
-                trace_events=tuple(trace.events),
-                fault_records=tuple(fault_injector.records) if fault_injector is not None else (),
+                evidence=evidence,
+                plan=plan,
+                receipt=receipt,
+                final_message=final_message,
+                fault_injector=fault_injector,
+                termination_reason="completed",
             )
 
     def run_clean_pilot(

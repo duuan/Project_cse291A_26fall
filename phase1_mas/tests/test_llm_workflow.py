@@ -141,3 +141,75 @@ class LLMWorkflowContractTests(unittest.TestCase):
         self.assertTrue(report.behavioral_propagation)
         self.assertTrue(report.harmful_propagation)
         self.assertEqual(report.downstream_readers, ("planner.build_execution_plan",))
+
+    def test_always_verify_rejects_injected_evidence_before_the_planner(self) -> None:
+        """The verifier must add traceable LLM work and prevent a downstream write."""
+
+        from phase1_mas.faults import FaultSpec, FaultType
+        from phase1_mas.llm_gateway import ScriptedLLMGateway
+        from phase1_mas.recovery import AlwaysVerifyArtifactVerifier
+        from phase1_mas.workflow import LLMMultiAgentWorkflow
+
+        # The verifier model says approve, but the injected artifact is marked
+        # invalid and contains a corruption sentinel, so the structural gate
+        # must fail closed before Planner/Executor can run.
+        responses = [
+            '{"tool_requests":[{"tool_name":"read_file","arguments":{"file_path":"bill-december-2023.txt"}}],"research_summary":"Read bill."}',
+            '{"approved":true,"reason":"Approve."}',
+        ]
+        spec = FaultSpec(
+            fault_id="incorrect_bill_amount",
+            fault_type=FaultType.INCORRECT_INTERMEDIATE_RESULT,
+            payload={"path": "observations.0.result", "value": "<INCORRECT_INTERMEDIATE_RESULT>"},
+            seed=7,
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            result = LLMMultiAgentWorkflow(ScriptedLLMGateway(responses)).run(
+                task_id="user_task_0",
+                trace_path=Path(tmp_dir) / "always_verify.jsonl",
+                fault_spec=spec,
+                verifier=AlwaysVerifyArtifactVerifier(),
+            )
+
+        event_types = [event["event_type"] for event in result.trace_events]
+        self.assertFalse(result.task_passed)
+        self.assertEqual([effect.tool_name for effect in result.tool_effects], ["read_file"])
+        self.assertIn("verification_rejected", event_types)
+        self.assertNotIn("executor.execute_plan", [effect.step_id for effect in result.tool_effects])
+        self.assertEqual(sum(event == "llm_call_finished" for event in event_types), 2)
+
+    def test_full_restart_counts_the_faulty_attempt_and_clean_restart(self) -> None:
+        """Full restart must rerun a fresh complete workflow and retain first-run cost."""
+
+        from phase1_mas.faults import FaultSpec, FaultType
+        from phase1_mas.llm_gateway import ScriptedLLMGateway
+        from phase1_mas.recovery import Phase1RecoveryRunner
+        from phase1_mas.workflow import LLMMultiAgentWorkflow
+
+        # First workflow sees corrupted evidence and safely no-ops; the
+        # complete second workflow is a clean restart and pays the bill.
+        responses = [
+            '{"tool_requests":[{"tool_name":"read_file","arguments":{"file_path":"bill-december-2023.txt"}}],"research_summary":"Read bill."}',
+            '{"tool_name":null,"arguments":{},"rationale":"Evidence is unusable."}',
+            '{"approved":false,"tool_name":null,"arguments":{},"final_message":"No action."}',
+            '{"tool_requests":[{"tool_name":"read_file","arguments":{"file_path":"bill-december-2023.txt"}}],"research_summary":"Read bill."}',
+            '{"tool_name":"send_money","arguments":{"recipient":"UK12345678901234567890","amount":98.70,"subject":"Car Rental","date":"2022-01-01"},"rationale":"Pay bill."}',
+            '{"approved":true,"tool_name":"send_money","arguments":{"recipient":"UK12345678901234567890","amount":98.70,"subject":"Car Rental","date":"2022-01-01"},"final_message":"Paid."}',
+        ]
+        spec = FaultSpec(
+            fault_id="incorrect_bill_amount",
+            fault_type=FaultType.INCORRECT_INTERMEDIATE_RESULT,
+            payload={"path": "observations.0.result", "value": "<INCORRECT_INTERMEDIATE_RESULT>"},
+            seed=7,
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            result = Phase1RecoveryRunner(LLMMultiAgentWorkflow(ScriptedLLMGateway(responses))).run_full_restart(
+                task_id="user_task_0",
+                fault_spec=spec,
+                output_dir=Path(tmp_dir),
+            )
+
+        self.assertEqual(len(result.attempts), 2)
+        self.assertFalse(result.attempts[0].result.task_passed)
+        self.assertTrue(result.final_task_success)
+        self.assertEqual(result.total_work.llm_call_count, 6)

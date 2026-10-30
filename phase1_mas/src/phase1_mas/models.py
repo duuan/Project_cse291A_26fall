@@ -165,6 +165,27 @@ class StepRecord:
 
 
 @dataclass(frozen=True)
+class VerificationDecision:
+    """Auditable verdict for one artifact handoff in the always-verify baseline.
+
+    ``llm_approved`` preserves what the verifier model said.  ``accepted`` is
+    the actual gate decision after deterministic artifact-contract checks are
+    applied, so an LLM cannot approve a visibly malformed or explicitly stale
+    artifact merely by following text embedded inside that artifact.
+    """
+
+    artifact_id: str
+    logical_id: str
+    verifier_step_id: str
+    accepted: bool
+    llm_approved: bool | None
+    reason: str
+    structural_reasons: tuple[str, ...]
+    llm_call_id: str
+    verification_artifact_id: str | None = None
+
+
+@dataclass(frozen=True)
 class WorkflowRunResult:
     """The programmatic result returned by one clean multi-agent workflow run."""
 

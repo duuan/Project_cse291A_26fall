@@ -288,21 +288,19 @@ class WastedWork:
         }
 
 
-def summarize_trace(
-    trace_path: Path,
+def summarize_events(
+    events: Sequence[dict[str, Any]],
     *,
+    trace_path: str = "<in-memory>",
     fallback_task_success: bool | None = None,
 ) -> TraceMetrics:
-    """Load one JSONL trace and derive timing/resource counters from it.
+    """Derive one run's metrics from already-loaded trace events.
 
-    ``fallback_task_success`` is used only for an old/incomplete trace lacking
-    a final score event; the paired propagation report remains explicit about
-    that fact.  Normal runs always obtain success from ``run_finished``.
+    Recovery baselines use this form immediately after a run returns; offline
+    experiment aggregation uses :func:`summarize_trace` below.  Both paths
+    therefore follow exactly the same accounting rules.
     """
 
-    if not trace_path.is_file():
-        raise MetricInputError(f"Required trace is missing: {trace_path}")
-    events = read_jsonl(trace_path)
     if not events:
         raise MetricInputError(f"Trace is empty: {trace_path}")
 
@@ -324,7 +322,7 @@ def summarize_trace(
     finished_at = run_finished.get("timestamp") if isinstance(run_finished, dict) else None
     work = _slice_work(events)
     return TraceMetrics(
-        trace_path=str(trace_path),
+        trace_path=trace_path,
         run_id=(run_started or {}).get("run_id"),
         task_id=(run_started or {}).get("task_id"),
         condition=(run_started or {}).get("condition"),
@@ -332,6 +330,27 @@ def summarize_trace(
         completed=run_finished is not None,
         end_to_end_latency_ms=_duration_ms(started_at, finished_at),
         work=work,
+    )
+
+
+def summarize_trace(
+    trace_path: Path,
+    *,
+    fallback_task_success: bool | None = None,
+) -> TraceMetrics:
+    """Load one JSONL trace and derive timing/resource counters from it.
+
+    ``fallback_task_success`` is used only for an old/incomplete trace lacking
+    a final score event; the paired propagation report remains explicit about
+    that fact.  Normal runs always obtain success from ``run_finished``.
+    """
+
+    if not trace_path.is_file():
+        raise MetricInputError(f"Required trace is missing: {trace_path}")
+    return summarize_events(
+        read_jsonl(trace_path),
+        trace_path=str(trace_path),
+        fallback_task_success=fallback_task_success,
     )
 
 
