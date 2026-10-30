@@ -75,3 +75,31 @@ class LLMWorkflowContractTests(unittest.TestCase):
                 self.assertEqual(sum(event["event_type"] == "llm_call_started" for event in events), 3)
                 self.assertEqual(sum(event["event_type"] == "llm_call_finished" for event in events), 3)
                 self.assertTrue(any(event["event_type"] == "artifact_read" for event in events))
+
+    def test_inconsistent_executor_noop_is_scored_as_a_failed_run(self) -> None:
+        """A model contract error must not abort the remaining pilot tasks."""
+
+        from phase1_mas.llm_gateway import ScriptedLLMGateway
+        from phase1_mas.trace import read_jsonl
+        from phase1_mas.workflow import LLMMultiAgentWorkflow
+
+        # This mirrors the observed UserTask12 failure: the Researcher omits
+        # the scheduled-payment lookup, Planner declines to act, then Executor
+        # incorrectly says both "approved" and "no tool".
+        responses = [
+            '{"tool_requests":[{"tool_name":"read_file","arguments":{"file_path":"landlord-notices.txt"}}],"research_summary":"Read the notice."}',
+            '{"tool_name":null,"arguments":{},"rationale":"Missing current scheduled-payment information."}',
+            '{"approved":true,"tool_name":null,"arguments":{},"final_message":"No action should be taken."}',
+        ]
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            trace_path = Path(tmp_dir) / "clean_user_task_12.jsonl"
+            result = LLMMultiAgentWorkflow(ScriptedLLMGateway(responses)).run(
+                task_id="user_task_12",
+                trace_path=trace_path,
+            )
+            events = read_jsonl(trace_path)
+
+        self.assertFalse(result.task_passed)
+        self.assertEqual([effect.tool_name for effect in result.tool_effects], ["read_file"])
+        self.assertIn("executor_decision_normalized", [event["event_type"] for event in events])
+        self.assertEqual(events[-1]["event_type"], "run_finished")

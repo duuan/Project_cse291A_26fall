@@ -378,6 +378,10 @@ class LLMResearcher:
                 "system",
                 "You are the Researcher in a banking multi-agent workflow. "
                 "Select only the minimum necessary read-only tools. Do not propose payments or any write action. "
+                "Before finishing, infer the likely downstream action and verify that your requested reads provide "
+                "every required tool argument from evidence: for example, collect an existing transaction ID and "
+                "current amount before proposing an update, not merely the text that requests the update. "
+                "Do not stop after reading high-level instructions when account-state evidence is also necessary. "
                 "Return exactly one JSON object: {\"tool_requests\":[{\"tool_name\":string,\"arguments\":object}],"
                 "\"research_summary\":string}. Do not include Markdown.",
             ),
@@ -388,7 +392,12 @@ class LLMResearcher:
                 + "\nUser request:\n"
                 + user_prompt
                 + "\n\nPermitted read-only tool schemas:\n"
-                + canonical_json(_tool_catalog(gateway, RESEARCHER_TOOL_NAMES)),
+                + canonical_json(_tool_catalog(gateway, RESEARCHER_TOOL_NAMES))
+                # Write schemas are context only.  Showing their required
+                # fields helps the Researcher collect sufficient evidence,
+                # without giving it permission to execute them.
+                + "\n\nDownstream write-tool schemas for evidence planning only (you cannot invoke these):\n"
+                + canonical_json(_tool_catalog(gateway, EXECUTOR_TOOL_NAMES)),
             ),
         ]
         completion = llm.complete(agent_id=self.agent_id, step_id=self.step_id, messages=messages, trace=trace)
@@ -567,6 +576,22 @@ class LLMExecutor:
         final_message = decision.get("final_message")
         if not isinstance(approved, bool) or not isinstance(arguments, dict) or not isinstance(final_message, str):
             raise ValueError("Executor response has invalid approved, arguments, or final_message fields")
+        normalized_noop = False
+        if approved and tool_name is None and not arguments:
+            # Some models express "I approve the plan's decision to do
+            # nothing" as approved=true/tool_name=null.  It is internally
+            # inconsistent, but it is a meaningful no-op outcome rather than
+            # an infrastructure failure.  Preserve the raw response in the
+            # receipt and trace the normalization for later failure analysis.
+            normalized_noop = True
+            approved = False
+            trace.emit(
+                "executor_decision_normalized",
+                agent_id=self.agent_id,
+                step_id=self.step_id,
+                reason="approved_true_with_null_tool_normalized_to_noop",
+                raw_executor_response=completion.content,
+            )
         if approved and tool_name not in EXECUTOR_TOOL_NAMES:
             raise ValueError("Executor selected a forbidden tool")
         if not approved and (tool_name is not None or arguments):
@@ -596,6 +621,7 @@ class LLMExecutor:
                 "plan_artifact_id": plan.artifact_id,
                 "executor_response": completion.content,
                 "approved": approved,
+                "normalized_noop": normalized_noop,
                 "tool_call_id": tool_call_id,
                 "result": tool_result,
             },
