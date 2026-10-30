@@ -142,7 +142,7 @@ class StepRecord:
 
 @dataclass(frozen=True)
 class WorkflowRunResult:
-    """The programmatic result returned by the Milestone 1 demo workflow."""
+    """The programmatic result returned by one clean multi-agent workflow run."""
 
     run_id: str
     task_id: str
@@ -153,3 +153,6 @@ class WorkflowRunResult:
     post_state_hash: str
     artifacts: tuple[Artifact, ...]
     tool_effects: tuple[ToolEffect, ...]
+    # ``score`` is intentionally generic here to avoid a models↔scoring import
+    # cycle.  At runtime it is a ``CleanTaskScore`` from ``scoring.py``.
+    score: Any | None = None

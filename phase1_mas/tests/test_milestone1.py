@@ -70,7 +70,7 @@ class BankingIntegrationTests(unittest.TestCase):
         self.assertNotEqual(result.pre_state_hash, result.post_state_hash)
         self.assertEqual([effect.tool_name for effect in result.tool_effects], ["read_file", "send_money"])
         self.assertTrue(result.tool_effects[1].state_changed)
-        self.assertEqual([artifact.logical_id for artifact in result.artifacts], ["bill_evidence", "payment_plan", "payment_receipt"])
+        self.assertEqual([artifact.logical_id for artifact in result.artifacts], ["task_evidence", "execution_plan", "execution_receipt"])
         self.assertIn("artifact_read", [event["event_type"] for event in events])
         self.assertIn("tool_call_finished", [event["event_type"] for event in events])
         self.assertIn("message_sent", [event["event_type"] for event in events])
