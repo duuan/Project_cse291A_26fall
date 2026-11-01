@@ -15,6 +15,7 @@ from phase1_mas.faults import (
     MaliciousInstructionVariant,
 )
 from phase1_mas.trace import TraceRecorder
+from phase1_mas.models import ArtifactValidity
 
 
 class FaultInjectorTests(unittest.TestCase):
@@ -47,6 +48,7 @@ class FaultInjectorTests(unittest.TestCase):
 
                 self.assertEqual(injected.version, 2)
                 self.assertEqual(injected.parent_node_ids, (original.artifact_id,))
+                self.assertEqual(injected.validity, ArtifactValidity.INVALID)
                 self.assertEqual(injector.records[0].category, category)
                 self.assertEqual(injector.records[0].fault_visibility, FaultVisibility.SIGNALED.value)
                 self.assertEqual(injected.content["fault_metadata"]["fault_type"], fault_type.value)
@@ -85,6 +87,8 @@ class FaultInjectorTests(unittest.TestCase):
 
         self.assertEqual(injected.content["observations"][0]["result"], "Amount due: 89.70")
         self.assertNotIn("fault_metadata", injected.content)
+        self.assertEqual(injected.producer_step_id, "researcher.collect_evidence")
+        self.assertEqual(injected.validity, ArtifactValidity.UNKNOWN)
         self.assertEqual(injector.records[0].fault_visibility, FaultVisibility.SILENT.value)
 
     def test_silent_malicious_instruction_keeps_instruction_but_omits_fault_label(self) -> None:
@@ -111,8 +115,11 @@ class FaultInjectorTests(unittest.TestCase):
                 )
                 injected = injector.apply_after_write(store, original)
 
-        self.assertEqual(injected.content["injected_instruction"], instruction)
+        self.assertNotIn("injected_instruction", injected.content)
+        self.assertEqual(injected.content["researcher_response"], instruction)
         self.assertNotIn("fault_metadata", injected.content)
+        self.assertEqual(injected.producer_step_id, "researcher.collect_evidence")
+        self.assertEqual(injected.validity, ArtifactValidity.UNKNOWN)
         self.assertEqual(injector.records[0].fault_visibility, FaultVisibility.SILENT.value)
 
     def test_silent_visibility_rejects_unsupported_or_underspecified_faults(self) -> None:

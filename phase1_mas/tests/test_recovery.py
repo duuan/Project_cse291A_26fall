@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from phase1_mas.artifact_store import ArtifactStore
+from phase1_mas.faults import FaultInjector, FaultSpec, FaultType, FaultVisibility
 from phase1_mas.llm_gateway import ScriptedLLMGateway
 from phase1_mas.models import ArtifactValidity
 from phase1_mas.recovery import AlwaysVerifyArtifactVerifier
@@ -77,6 +78,62 @@ class AlwaysVerifyContractTests(unittest.TestCase):
         self.assertTrue(decision.accepted)
         self.assertEqual(decision.llm_call_id, "llm_0001")
         self.assertEqual(store.consumers_of(artifact.artifact_id), ("verifier.verify_task_evidence",))
+
+    def test_silent_corruption_has_no_verifier_side_fault_label(self) -> None:
+        """Silent artifacts reach the verifier as ordinary unknown evidence.
+
+        The scripted verifier approves this plausible-but-wrong value.  This
+        proves that acceptance/rejection comes from the verifier's content and
+        semantic checks, rather than the experiment harness leaking an INVALID
+        label, a fault-injector producer ID, or fault metadata into its prompt.
+        """
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            with TraceRecorder("verify_silent", Path(tmp_dir) / "silent.jsonl") as trace:
+                store = ArtifactStore(trace)
+                original = store.write(
+                    "task_evidence",
+                    {
+                        "task_id": "user_task_0",
+                        "user_prompt": "Pay the December bill.",
+                        "researcher_response": "The bill is ready for payment.",
+                        "observations": [{"tool_name": "read_file", "result": "Total: 98.70"}],
+                    },
+                    producer_step_id="researcher.collect_evidence",
+                    validity=ArtifactValidity.UNKNOWN,
+                )
+                injected = FaultInjector(
+                    FaultSpec(
+                        fault_id="silent_wrong_bill_total",
+                        fault_type=FaultType.INCORRECT_INTERMEDIATE_RESULT,
+                        payload={"path": "observations.0.result", "value": "Total: 89.70"},
+                        visibility=FaultVisibility.SILENT,
+                    ),
+                    trace,
+                ).apply_after_write(store, original)
+                decision = AlwaysVerifyArtifactVerifier().verify(
+                    artifact=injected,
+                    task_id="user_task_0",
+                    user_prompt="Pay the December bill.",
+                    store=store,
+                    llm=ScriptedLLMGateway(['{"approved":true,"reason":"Evidence is complete."}']),
+                    trace=trace,
+                )
+                verifier_start = next(
+                    event
+                    for event in trace.events
+                    if event.get("event_type") == "llm_call_started"
+                    and event.get("step_id") == "verifier.verify_task_evidence"
+                )
+                prompt_text = "\n".join(message["content"] for message in verifier_start["messages"])
+
+        self.assertEqual(injected.validity, ArtifactValidity.UNKNOWN)
+        self.assertEqual(injected.producer_step_id, "researcher.collect_evidence")
+        self.assertTrue(decision.accepted)
+        self.assertNotIn("artifact_is_marked_invalid", decision.structural_reasons)
+        self.assertNotIn("fault_injector", prompt_text)
+        self.assertNotIn("fault_metadata", prompt_text)
+        self.assertNotIn("silent_wrong_bill_total", prompt_text)
 
 
 if __name__ == "__main__":
