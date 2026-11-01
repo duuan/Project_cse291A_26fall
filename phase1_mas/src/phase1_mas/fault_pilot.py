@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .faults import FaultSpec, FaultType, MaliciousInstructionVariant
+from .faults import FaultSpec, FaultType, FaultVisibility, MaliciousInstructionVariant
 from .agents import LLM_CLEAN_PILOT_TASK_IDS
 from .metrics import aggregate_fault_experiment, write_metric_outputs
 from .workflow import LLMMultiAgentWorkflow
@@ -34,6 +34,7 @@ def _run_one(
     fault_type: FaultType,
     seed: int,
     payload: dict[str, Any] | None,
+    visibility: FaultVisibility,
     malicious_variant: MaliciousInstructionVariant,
 ) -> dict[str, Any]:
     """Execute one fair clean/fault pair and persist its propagation report."""
@@ -50,12 +51,14 @@ def _run_one(
         if effective_variant is MaliciousInstructionVariant.HANDOFF_DEFAULT
         else f"_{effective_variant.value}"
     )
-    fault_id = f"{fault_type.value}{variant_suffix}_seed_{seed}"
+    visibility_suffix = "" if visibility is FaultVisibility.SIGNALED else f"_{visibility.value}"
+    fault_id = f"{fault_type.value}{visibility_suffix}{variant_suffix}_seed_{seed}"
     spec = FaultSpec(
         fault_id=fault_id,
         fault_type=fault_type,
         payload=payload,
         seed=seed,
+        visibility=visibility,
         malicious_variant=effective_variant,
     )
     clean, faulty, report = workflow.run_paired(task_id=task_id, fault_spec=spec, output_dir=output_dir)
@@ -66,6 +69,7 @@ def _run_one(
         "fault_id": fault_id,
         "fault_type": fault_type.value,
         "category": fault_type.category,
+        "fault_visibility": visibility.value,
         "malicious_variant": (
             effective_variant.value if fault_type is FaultType.MALICIOUS_INSTRUCTION else None
         ),
@@ -94,6 +98,16 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42, help="Recorded fault-schedule seed.")
     parser.add_argument("--payload", help="Optional JSON object overriding the selected fault's default payload.")
     parser.add_argument(
+        "--fault-visibility",
+        choices=[visibility.value for visibility in FaultVisibility],
+        default=FaultVisibility.SIGNALED.value,
+        help=(
+            "Whether downstream agents receive an explicit fault label. signaled preserves the "
+            "original transformations; silent is supported only for incorrect_intermediate_result "
+            "and malicious_instruction."
+        ),
+    )
+    parser.add_argument(
         "--malicious-variant",
         choices=[variant.value for variant in MaliciousInstructionVariant],
         default=MaliciousInstructionVariant.HANDOFF_DEFAULT.value,
@@ -114,23 +128,45 @@ def main() -> None:
     if args.fault_type == "all" and payload is not None:
         parser.error("--payload is supported only with one specific --fault-type")
 
-    workflow = LLMMultiAgentWorkflow.from_env()
     malicious_variant = MaliciousInstructionVariant(args.malicious_variant)
+    visibility = FaultVisibility(args.fault_visibility)
     types = list(FaultType) if args.fault_type == "all" else [FaultType(args.fault_type)]
+    silent_supported_types = {
+        FaultType.INCORRECT_INTERMEDIATE_RESULT,
+        FaultType.MALICIOUS_INSTRUCTION,
+    }
+    if visibility is FaultVisibility.SILENT and any(fault_type not in silent_supported_types for fault_type in types):
+        parser.error(
+            "--fault-visibility silent is supported only with --fault-type "
+            "incorrect_intermediate_result or malicious_instruction"
+        )
+    if (
+        visibility is FaultVisibility.SILENT
+        and types == [FaultType.INCORRECT_INTERMEDIATE_RESULT]
+        and (payload is None or "value" not in payload)
+    ):
+        parser.error(
+            "silent incorrect_intermediate_result requires --payload with an explicit 'value'"
+        )
+    workflow = LLMMultiAgentWorkflow.from_env()
     task_ids = LLM_CLEAN_PILOT_TASK_IDS if args.task_id == "all" else (args.task_id,)
     reports = []
     for task_index, task_id in enumerate(task_ids):
         for fault_index, fault_type in enumerate(types):
             # A distinct recorded seed identifies every point in the grid,
             # while the gateway keeps the same model configuration everywhere.
+            fault_directory = fault_type.value
+            if visibility is FaultVisibility.SILENT:
+                fault_directory += f"_{visibility.value}"
             reports.append(
                 _run_one(
                     workflow,
-                    args.output_dir / task_id / fault_type.value,
+                    args.output_dir / task_id / fault_directory,
                     task_id,
                     fault_type,
                     args.seed + task_index * len(types) + fault_index,
                     payload,
+                    visibility,
                     malicious_variant,
                 )
             )

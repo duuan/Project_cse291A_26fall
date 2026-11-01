@@ -181,6 +181,7 @@ class MetricsTests(unittest.TestCase):
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["seed"], 42)
+        self.assertEqual(rows[0]["fault_visibility"], "signaled")
         self.assertEqual(rows[0]["clean"]["end_to_end_latency_ms"], 100.0)
         self.assertEqual(rows[0]["faulty"]["end_to_end_latency_ms"], 80.0)
         self.assertEqual(rows[0]["wasted_work"]["total"]["llm_call_count"], 3)
@@ -192,6 +193,7 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(overall["faulty"]["unauthorized_actions"]["denied_tool_call_count"], 1)
         self.assertEqual(overall["failure_propagation"]["harmful_propagation_count"], 1)
         self.assertEqual(overall["affected_stages"]["stage_occurrences"]["executor.execute_plan"], 1)
+        self.assertIn("signaled", summary["by_fault_visibility"])
         self.assertTrue(output_files_exist)
 
 

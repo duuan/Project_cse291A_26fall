@@ -511,8 +511,11 @@ def build_experiment_rows(experiment_root: Path) -> list[dict[str, Any]]:
         fault_id = report.get("fault_id") or raw_entry.get("fault_id")
         fault_type = report.get("fault_type") or raw_entry.get("fault_type")
         category = report.get("category") or raw_entry.get("category")
+        fault_visibility = report.get("fault_visibility") or raw_entry.get("fault_visibility") or "signaled"
         if not all(isinstance(value, str) and value for value in (task_id, fault_id, fault_type, category)):
             raise MetricInputError(f"Propagation report is missing task/fault identifiers: {report_path}")
+        if not isinstance(fault_visibility, str) or not fault_visibility:
+            raise MetricInputError(f"Propagation report has an invalid fault visibility: {report_path}")
 
         pair_directory = _pair_directory(
             experiment_root=experiment_root,
@@ -547,6 +550,7 @@ def build_experiment_rows(experiment_root: Path) -> list[dict[str, Any]]:
                 "fault_id": fault_id,
                 "fault_type": fault_type,
                 "category": category,
+                "fault_visibility": fault_visibility,
                 "seed": seed,
                 "propagation": report,
                 "clean": clean.as_dict(),
@@ -707,9 +711,16 @@ def summarize_experiment_rows(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
 
     by_fault_type: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_category: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_fault_visibility: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_fault_type_and_visibility: dict[str, dict[str, list[dict[str, Any]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     for row in rows:
         by_fault_type[str(row["fault_type"])].append(row)
         by_category[str(row["category"])].append(row)
+        visibility = str(row["fault_visibility"])
+        by_fault_visibility[visibility].append(row)
+        by_fault_type_and_visibility[str(row["fault_type"])][visibility].append(row)
 
     return {
         "metric_definitions": {
@@ -732,10 +743,24 @@ def summarize_experiment_rows(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 "termination. Units remain separate."
             ),
             "end_to_end_latency": "Wall-clock difference from run_started.timestamp to run_finished.timestamp.",
+            "fault_visibility": (
+                "signaled means the downstream artifact contains explicit fault/status labels; "
+                "silent means experiment-only labels are omitted from model-visible artifact content."
+            ),
         },
         "overall": group_summary(rows),
         "by_fault_type": {key: group_summary(value) for key, value in sorted(by_fault_type.items())},
         "by_category": {key: group_summary(value) for key, value in sorted(by_category.items())},
+        "by_fault_visibility": {
+            key: group_summary(value) for key, value in sorted(by_fault_visibility.items())
+        },
+        "by_fault_type_and_visibility": {
+            fault_type: {
+                visibility: group_summary(visibility_rows)
+                for visibility, visibility_rows in sorted(visibility_groups.items())
+            }
+            for fault_type, visibility_groups in sorted(by_fault_type_and_visibility.items())
+        },
     }
 
 
@@ -763,6 +788,7 @@ def write_metric_outputs(
     rows_path = output_dir / "experiment_rows.jsonl"
     by_fault_path = output_dir / "metrics_by_fault_type.json"
     by_category_path = output_dir / "metrics_by_category.json"
+    by_visibility_path = output_dir / "metrics_by_fault_visibility.json"
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     rows_path.write_text(
         "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
@@ -776,9 +802,14 @@ def write_metric_outputs(
         json.dumps(summary.get("by_category", {}), ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    by_visibility_path.write_text(
+        json.dumps(summary.get("by_fault_visibility", {}), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     return {
         "metrics_summary": summary_path,
         "experiment_rows": rows_path,
         "by_fault_type": by_fault_path,
         "by_category": by_category_path,
+        "by_fault_visibility": by_visibility_path,
     }

@@ -25,7 +25,7 @@ from typing import Any, Iterable, Sequence
 
 from .agents import EXECUTOR_TOOL_NAMES, LLM_CLEAN_PILOT_TASK_IDS
 from .artifact_store import ArtifactStore
-from .faults import FaultSpec, FaultType, MaliciousInstructionVariant
+from .faults import FaultSpec, FaultType, FaultVisibility, MaliciousInstructionVariant
 from .llm_gateway import LLMGateway, LLMRequestError, parse_json_object
 from .metrics import TraceMetrics, WorkSlice, summarize_events
 from .models import Artifact, ArtifactValidity, StepRecord, VerificationDecision, WorkflowRunResult, canonical_json, to_jsonable, utc_now_iso
@@ -525,6 +525,7 @@ def _run_one_strategy(
     fault_type: FaultType,
     seed: int,
     payload: dict[str, Any] | None,
+    visibility: FaultVisibility,
     malicious_variant: MaliciousInstructionVariant,
     output_dir: Path,
 ) -> RecoveryResult:
@@ -540,12 +541,14 @@ def _run_one_strategy(
         if effective_variant is MaliciousInstructionVariant.HANDOFF_DEFAULT
         else f"_{effective_variant.value}"
     )
-    fault_id = f"{fault_type.value}{variant_suffix}_seed_{seed}"
+    visibility_suffix = "" if visibility is FaultVisibility.SIGNALED else f"_{visibility.value}"
+    fault_id = f"{fault_type.value}{visibility_suffix}{variant_suffix}_seed_{seed}"
     spec = FaultSpec(
         fault_id=fault_id,
         fault_type=fault_type,
         payload=payload,
         seed=seed,
+        visibility=visibility,
         malicious_variant=effective_variant,
     )
     if strategy is RecoveryStrategy.FULL_RESTART:
@@ -596,6 +599,16 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42, help="Base seed recorded in each fault specification.")
     parser.add_argument("--payload", help="Optional JSON payload for one selected fault type.")
     parser.add_argument(
+        "--fault-visibility",
+        choices=[visibility.value for visibility in FaultVisibility],
+        default=FaultVisibility.SIGNALED.value,
+        help=(
+            "Whether downstream agents receive an explicit fault label. signaled preserves the "
+            "original transformations; silent is supported only for incorrect_intermediate_result "
+            "and malicious_instruction."
+        ),
+    )
+    parser.add_argument(
         "--malicious-variant",
         choices=[variant.value for variant in MaliciousInstructionVariant],
         default=MaliciousInstructionVariant.HANDOFF_DEFAULT.value,
@@ -619,6 +632,26 @@ def main() -> None:
     fault_types = list(FaultType) if args.fault_type == "all" else [FaultType(args.fault_type)]
     strategies = list(RecoveryStrategy) if args.strategy == "all" else [RecoveryStrategy(args.strategy)]
     malicious_variant = MaliciousInstructionVariant(args.malicious_variant)
+    visibility = FaultVisibility(args.fault_visibility)
+    silent_supported_types = {
+        FaultType.INCORRECT_INTERMEDIATE_RESULT,
+        FaultType.MALICIOUS_INSTRUCTION,
+    }
+    if visibility is FaultVisibility.SILENT and any(
+        fault_type not in silent_supported_types for fault_type in fault_types
+    ):
+        parser.error(
+            "--fault-visibility silent is supported only with --fault-type "
+            "incorrect_intermediate_result or malicious_instruction"
+        )
+    if (
+        visibility is FaultVisibility.SILENT
+        and fault_types == [FaultType.INCORRECT_INTERMEDIATE_RESULT]
+        and (payload is None or "value" not in payload)
+    ):
+        parser.error(
+            "silent incorrect_intermediate_result requires --payload with an explicit 'value'"
+        )
     workflow = LLMMultiAgentWorkflow.from_env()
     runner = Phase1RecoveryRunner(workflow)
     results: list[RecoveryResult] = []
@@ -633,6 +666,8 @@ def main() -> None:
                 else MaliciousInstructionVariant.HANDOFF_DEFAULT
             )
             fault_directory = fault_type.value
+            if visibility is FaultVisibility.SILENT:
+                fault_directory += f"_{visibility.value}"
             if effective_variant is not MaliciousInstructionVariant.HANDOFF_DEFAULT:
                 fault_directory += f"_{effective_variant.value}"
             for strategy in strategies:
@@ -643,6 +678,7 @@ def main() -> None:
                     fault_type=fault_type,
                     seed=point_seed,
                     payload=payload,
+                    visibility=visibility,
                     malicious_variant=malicious_variant,
                     output_dir=args.output_dir / task_id / fault_directory / strategy.value,
                 )

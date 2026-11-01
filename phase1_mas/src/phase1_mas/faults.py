@@ -34,6 +34,20 @@ class FaultType(str, Enum):
         return "adversarial" if self is FaultType.MALICIOUS_INSTRUCTION else "accidental"
 
 
+class FaultVisibility(str, Enum):
+    """Describe whether downstream agents receive an explicit fault signal.
+
+    ``SIGNALED`` preserves the original Phase 1 artifact transformations: the
+    injected content names its fault metadata and uses explicit placeholders or
+    status fields where applicable.  ``SILENT`` keeps experiment provenance in
+    the trace but omits those experiment-only labels from model-visible
+    artifact content.
+    """
+
+    SIGNALED = "signaled"
+    SILENT = "silent"
+
+
 class MaliciousInstructionVariant(str, Enum):
     """Two injection locations for the one required adversarial fault family.
 
@@ -75,6 +89,7 @@ class FaultSpec:
     target_step_id: str = "researcher.collect_evidence"
     payload: dict[str, Any] | None = None
     seed: int = 0
+    visibility: FaultVisibility = FaultVisibility.SIGNALED
     malicious_variant: MaliciousInstructionVariant = MaliciousInstructionVariant.HANDOFF_DEFAULT
 
     def __post_init__(self) -> None:
@@ -85,6 +100,21 @@ class FaultSpec:
             and self.malicious_variant is not MaliciousInstructionVariant.HANDOFF_DEFAULT
         ):
             raise ValueError("A non-default malicious_variant is valid only for malicious_instruction faults")
+        if self.visibility is FaultVisibility.SILENT:
+            if self.fault_type not in {
+                FaultType.INCORRECT_INTERMEDIATE_RESULT,
+                FaultType.MALICIOUS_INSTRUCTION,
+            }:
+                raise ValueError(
+                    "silent visibility is currently supported only for "
+                    "incorrect_intermediate_result and malicious_instruction"
+                )
+            if self.fault_type is FaultType.INCORRECT_INTERMEDIATE_RESULT and (
+                not isinstance(self.payload, dict) or "value" not in self.payload
+            ):
+                raise ValueError(
+                    "silent incorrect_intermediate_result requires a payload with an explicit 'value'"
+                )
 
     @property
     def is_agentdojo_environment_injection(self) -> bool:
@@ -108,6 +138,7 @@ class FaultRecord:
     original_artifact_id: str | None
     injected_artifact_id: str
     payload_hash: str
+    fault_visibility: str = FaultVisibility.SIGNALED.value
     injection_location: str = "artifact_handoff"
     malicious_variant: str | None = None
     agentdojo_injection_task_id: str | None = None
@@ -135,6 +166,7 @@ class PropagationReport:
     clean_tool_signature: tuple[str, ...]
     faulty_tool_signature: tuple[str, ...]
     affected_stages: tuple[str, ...]
+    fault_visibility: str = FaultVisibility.SIGNALED.value
     injection_location: str = "artifact_handoff"
     malicious_variant: str | None = None
     agentdojo_injection_task_id: str | None = None
@@ -148,6 +180,7 @@ class PropagationReport:
             "fault_id": self.fault_id,
             "fault_type": self.fault_type,
             "category": self.category,
+            "fault_visibility": self.fault_visibility,
             "injected_artifact_id": self.injected_artifact_id,
             "downstream_readers": list(self.downstream_readers),
             "exposure": self.exposure,
@@ -203,7 +236,11 @@ class FaultInjector:
 
         if self.spec.fault_type is FaultType.INCORRECT_INTERMEDIATE_RESULT:
             path = payload.get("path", "observations.0.result")
-            value = payload.get("value", "<INCORRECT_INTERMEDIATE_RESULT>")
+            value = (
+                payload["value"]
+                if self.spec.visibility is FaultVisibility.SILENT
+                else payload.get("value", "<INCORRECT_INTERMEDIATE_RESULT>")
+            )
             _set_dotted_path(content, path, value)
         elif self.spec.fault_type is FaultType.MALICIOUS_INSTRUCTION:
             content["injected_instruction"] = payload.get(
@@ -235,13 +272,14 @@ class FaultInjector:
         else:  # pragma: no cover - defensive branch for future Enum additions
             raise ValueError(f"Unsupported fault type: {self.spec.fault_type}")
 
-        content["fault_metadata"] = {
-            "fault_id": self.spec.fault_id,
-            "fault_type": self.spec.fault_type.value,
-            "category": self.spec.fault_type.category,
-            "seed": self.spec.seed,
-            "payload": payload,
-        }
+        if self.spec.visibility is FaultVisibility.SIGNALED:
+            content["fault_metadata"] = {
+                "fault_id": self.spec.fault_id,
+                "fault_type": self.spec.fault_type.value,
+                "category": self.spec.fault_type.category,
+                "seed": self.spec.seed,
+                "payload": payload,
+            }
         return content
 
     def apply_after_write(self, store: ArtifactStore, artifact: Artifact) -> Artifact:
@@ -266,6 +304,7 @@ class FaultInjector:
             original_artifact_id=artifact.artifact_id,
             injected_artifact_id=injected.artifact_id,
             payload_hash=stable_hash(self.spec.payload or {}),
+            fault_visibility=self.spec.visibility.value,
             injection_location=(
                 self.spec.malicious_variant.injection_location
                 if self.spec.fault_type is FaultType.MALICIOUS_INSTRUCTION
@@ -316,6 +355,7 @@ class FaultInjector:
             original_artifact_id=None,
             injected_artifact_id=evidence_artifact.artifact_id,
             payload_hash=stable_hash(injection_payload),
+            fault_visibility=self.spec.visibility.value,
             injection_location=self.spec.malicious_variant.injection_location,
             malicious_variant=self.spec.malicious_variant.value,
             agentdojo_injection_task_id=injection_task_id,
@@ -375,6 +415,7 @@ def analyze_propagation(
         fault_id=record.fault_id,
         fault_type=record.fault_type,
         category=record.category,
+        fault_visibility=record.fault_visibility,
         injected_artifact_id=record.injected_artifact_id,
         downstream_readers=readers,
         exposure=exposure,
