@@ -1,0 +1,354 @@
+{
+  "accidental": {
+    "paired_comparison_count": 24,
+    "clean": {
+      "run_count": 24,
+      "completed_run_count": 24,
+      "task_success_count": 22,
+      "task_success_observed_count": 24,
+      "task_success_rate": 0.9166666666666666,
+      "unauthorized_actions": {
+        "denied_tool_call_count": 0,
+        "runs_with_denied_tool_call": 0
+      },
+      "work": {
+        "completed_agent_steps": 72,
+        "llm_call_count": 72,
+        "tool_call_count": 65,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 86903,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 18525,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 72,
+        "llm_latency_ms": 80716.87420806848,
+        "llm_latency_unknown_call_count": 0
+      },
+      "end_to_end_latency_ms": {
+        "count": 24,
+        "observed_count": 24,
+        "missing_count": 0,
+        "sum": 88024.26500000003,
+        "mean": 3667.6777083333345,
+        "median": 3286.9169999999995,
+        "min": 1954.346,
+        "max": 9602.080000000002
+      }
+    },
+    "faulty": {
+      "run_count": 24,
+      "completed_run_count": 24,
+      "task_success_count": 3,
+      "task_success_observed_count": 24,
+      "task_success_rate": 0.125,
+      "unauthorized_actions": {
+        "denied_tool_call_count": 0,
+        "runs_with_denied_tool_call": 0
+      },
+      "work": {
+        "completed_agent_steps": 72,
+        "llm_call_count": 72,
+        "tool_call_count": 40,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 77046,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 14915,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 72,
+        "llm_latency_ms": 74385.62027178705,
+        "llm_latency_unknown_call_count": 0
+      },
+      "end_to_end_latency_ms": {
+        "count": 24,
+        "observed_count": 24,
+        "missing_count": 0,
+        "sum": 75608.777,
+        "mean": 3150.3657083333333,
+        "median": 3041.923,
+        "min": 2413.917,
+        "max": 4529.956
+      }
+    },
+    "faulty_minus_clean_task_success_rate": -0.7916666666666666,
+    "failure_propagation": {
+      "injected_artifact_read_count": 24,
+      "injected_artifact_read_rate": 1.0,
+      "behavioral_propagation_count": 24,
+      "behavioral_propagation_rate": 1.0,
+      "harmful_propagation_count": 21,
+      "harmful_propagation_rate": 0.875
+    },
+    "affected_stages": {
+      "comparisons_with_affected_stage": 24,
+      "stage_occurrences": {
+        "executor.execute_plan": 24,
+        "planner.build_execution_plan": 24
+      }
+    },
+    "wasted_work": {
+      "harmful_fault_count": 21,
+      "total": {
+        "completed_agent_steps": 63,
+        "llm_call_count": 63,
+        "tool_call_count": 36,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 67451,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 12953,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 63,
+        "llm_latency_ms": 64091.92742197774,
+        "llm_latency_unknown_call_count": 0
+      },
+      "invalidated_producer_total": {
+        "completed_agent_steps": 21,
+        "llm_call_count": 21,
+        "tool_call_count": 36,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 24693,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 5669,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 21,
+        "llm_latency_ms": 26659.99764460139,
+        "llm_latency_unknown_call_count": 0
+      },
+      "downstream_total": {
+        "completed_agent_steps": 42,
+        "llm_call_count": 42,
+        "tool_call_count": 0,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 42758,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 7284,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 42,
+        "llm_latency_ms": 37431.929777376354,
+        "llm_latency_unknown_call_count": 0
+      },
+      "fault_to_end_latency_ms": {
+        "count": 21,
+        "observed_count": 21,
+        "missing_count": 0,
+        "sum": 37830.929000000004,
+        "mean": 1801.4728095238097,
+        "median": 1736.622,
+        "min": 1137.472,
+        "max": 3234.651
+      }
+    },
+    "end_to_end_latency": {
+      "clean_ms": {
+        "count": 24,
+        "observed_count": 24,
+        "missing_count": 0,
+        "sum": 88024.26500000003,
+        "mean": 3667.6777083333345,
+        "median": 3286.9169999999995,
+        "min": 1954.346,
+        "max": 9602.080000000002
+      },
+      "faulty_ms": {
+        "count": 24,
+        "observed_count": 24,
+        "missing_count": 0,
+        "sum": 75608.777,
+        "mean": 3150.3657083333333,
+        "median": 3041.923,
+        "min": 2413.917,
+        "max": 4529.956
+      },
+      "faulty_minus_clean_ms": {
+        "count": 24,
+        "observed_count": 24,
+        "missing_count": 0,
+        "sum": -12415.488,
+        "mean": -517.312,
+        "median": -248.46949999999993,
+        "min": -6839.314000000002,
+        "max": 1401.8140000000003
+      }
+    }
+  },
+  "adversarial": {
+    "paired_comparison_count": 8,
+    "clean": {
+      "run_count": 8,
+      "completed_run_count": 8,
+      "task_success_count": 6,
+      "task_success_observed_count": 8,
+      "task_success_rate": 0.75,
+      "unauthorized_actions": {
+        "denied_tool_call_count": 0,
+        "runs_with_denied_tool_call": 0
+      },
+      "work": {
+        "completed_agent_steps": 24,
+        "llm_call_count": 24,
+        "tool_call_count": 24,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 29376,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 7744,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 24,
+        "llm_latency_ms": 32773.05224118754,
+        "llm_latency_unknown_call_count": 0
+      },
+      "end_to_end_latency_ms": {
+        "count": 8,
+        "observed_count": 8,
+        "missing_count": 0,
+        "sum": 33245.245,
+        "mean": 4155.655625,
+        "median": 3502.6385,
+        "min": 2156.708,
+        "max": 8341.869
+      }
+    },
+    "faulty": {
+      "run_count": 8,
+      "completed_run_count": 8,
+      "task_success_count": 7,
+      "task_success_observed_count": 8,
+      "task_success_rate": 0.875,
+      "unauthorized_actions": {
+        "denied_tool_call_count": 0,
+        "runs_with_denied_tool_call": 0
+      },
+      "work": {
+        "completed_agent_steps": 24,
+        "llm_call_count": 24,
+        "tool_call_count": 20,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 29189,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 6437,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 24,
+        "llm_latency_ms": 28627.956363139674,
+        "llm_latency_unknown_call_count": 0
+      },
+      "end_to_end_latency_ms": {
+        "count": 8,
+        "observed_count": 8,
+        "missing_count": 0,
+        "sum": 29087.106000000003,
+        "mean": 3635.8882500000004,
+        "median": 3614.804,
+        "min": 2589.04,
+        "max": 5117.5
+      }
+    },
+    "faulty_minus_clean_task_success_rate": 0.125,
+    "failure_propagation": {
+      "injected_artifact_read_count": 8,
+      "injected_artifact_read_rate": 1.0,
+      "behavioral_propagation_count": 8,
+      "behavioral_propagation_rate": 1.0,
+      "harmful_propagation_count": 1,
+      "harmful_propagation_rate": 0.125
+    },
+    "affected_stages": {
+      "comparisons_with_affected_stage": 8,
+      "stage_occurrences": {
+        "executor.execute_plan": 8,
+        "planner.build_execution_plan": 8
+      }
+    },
+    "wasted_work": {
+      "harmful_fault_count": 1,
+      "total": {
+        "completed_agent_steps": 3,
+        "llm_call_count": 3,
+        "tool_call_count": 1,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 3618,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 830,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 3,
+        "llm_latency_ms": 5063.0351128056645,
+        "llm_latency_unknown_call_count": 0
+      },
+      "invalidated_producer_total": {
+        "completed_agent_steps": 1,
+        "llm_call_count": 1,
+        "tool_call_count": 1,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 1189,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 277,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 1,
+        "llm_latency_ms": 1961.9273249991238,
+        "llm_latency_unknown_call_count": 0
+      },
+      "downstream_total": {
+        "completed_agent_steps": 2,
+        "llm_call_count": 2,
+        "tool_call_count": 0,
+        "denied_tool_call_count": 0,
+        "input_tokens_known": 2429,
+        "input_token_unknown_call_count": 0,
+        "output_tokens_known": 553,
+        "output_token_unknown_call_count": 0,
+        "estimated_cost_usd_known": 0.0,
+        "estimated_cost_unknown_call_count": 2,
+        "llm_latency_ms": 3101.1077878065407,
+        "llm_latency_unknown_call_count": 0
+      },
+      "fault_to_end_latency_ms": {
+        "count": 1,
+        "observed_count": 1,
+        "missing_count": 0,
+        "sum": 3121.661,
+        "mean": 3121.661,
+        "median": 3121.661,
+        "min": 3121.661,
+        "max": 3121.661
+      }
+    },
+    "end_to_end_latency": {
+      "clean_ms": {
+        "count": 8,
+        "observed_count": 8,
+        "missing_count": 0,
+        "sum": 33245.245,
+        "mean": 4155.655625,
+        "median": 3502.6385,
+        "min": 2156.708,
+        "max": 8341.869
+      },
+      "faulty_ms": {
+        "count": 8,
+        "observed_count": 8,
+        "missing_count": 0,
+        "sum": 29087.106000000003,
+        "mean": 3635.8882500000004,
+        "median": 3614.804,
+        "min": 2589.04,
+        "max": 5117.5
+      },
+      "faulty_minus_clean_ms": {
+        "count": 8,
+        "observed_count": 8,
+        "missing_count": 0,
+        "sum": -4158.139000000001,
+        "mean": -519.7673750000001,
+        "median": 205.86250000000064,
+        "min": -4751.012000000001,
+        "max": 1559.7019999999998
+      }
+    }
+  }
+}
