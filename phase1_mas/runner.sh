@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 SEED="${SEED:-42}"
-RESULTS_ROOT="${RESULTS_ROOT:-$PROJECT_ROOT/phase1_mas/results/phase1_full_seed_${SEED}}"
+RESULTS_ROOT="${RESULTS_ROOT:-$PROJECT_ROOT/phase1_mas/results_248/phase1_full_seed_${SEED}}"
 
 cd "$PROJECT_ROOT"
 export PYTHONPATH="$PROJECT_ROOT/phase1_mas/src${PYTHONPATH:+:$PYTHONPATH}"
