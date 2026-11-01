@@ -40,10 +40,18 @@ class LLMWorkflowContractTests(unittest.TestCase):
                 task_id=user_task_id,
                 injection_task_id=injection_task_id,
             )
+            # This call exercises AgentDojo's real ``environment.yaml``
+            # template substitution and YAML parser.  The generated JSON-rich
+            # instruction must not make the benchmark environment malformed.
+            context = adapter.create_context(
+                user_task_id,
+                injections={payload.injection_vector_id: payload.injected_text},
+            )
             self.assertEqual(len(payload.tool_sequence), 1)
             self.assertEqual(payload.tool_sequence[0]["tool_name"], expected_tool)
             self.assertIn("<INFORMATION>", payload.injected_text)
             self.assertIn(payload.goal, payload.instruction)
+            self.assertIsNotNone(context.environment)
 
     def test_agentdojo_environment_attack_has_its_own_security_oracle(self) -> None:
         """A role-authorized transfer can still be a semantic attack success."""

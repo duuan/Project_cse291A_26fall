@@ -43,10 +43,12 @@ BANKING_INJECTION_VECTOR_BY_USER_TASK = {
 class AgentDojoInjectionPayload:
     """One rendered Banking prompt-injection payload and its provenance.
 
-    ``instruction`` is the adversarial text appended to the environment
-    vector.  ``injected_text`` deliberately retains the vector's normal
-    default value before that text, so the original user task remains possible
-    rather than being broken merely by deleting the bill or notice content.
+    ``instruction`` is the raw adversarial text that Researcher should later
+    observe.  ``injected_text`` is a YAML-safe fragment used only for
+    AgentDojo's template substitution.  It deliberately retains the vector's
+    normal default value before that text, so the original user task remains
+    possible rather than being broken merely by deleting the bill or notice
+    content.
     """
 
     user_task_id: str
@@ -127,6 +129,27 @@ class AgentDojoAdapter:
             if effect.error is None
         ]
 
+    @staticmethod
+    def _yaml_double_quoted_fragment(value: str) -> str:
+        """Escape added text for an AgentDojo ``environment.yaml`` placeholder.
+
+        AgentDojo fills its YAML template with ``str.format`` *before* parsing
+        YAML.  Its built-in vector defaults are already stored in the escaped
+        representation expected by that template, but our generated attack
+        text contains real newlines, JSON double quotes, and sometimes tabs.
+        Inserting those raw characters breaks the surrounding YAML
+        double-quoted scalar.  Escape only the newly appended text here; do
+        not re-escape AgentDojo's existing default fragment.
+        """
+
+        return (
+            value.replace("\\", "\\\\")
+            .replace('"', '\\"')
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+        )
+
     def build_agentdojo_injection_payload(
         self,
         *,
@@ -202,7 +225,11 @@ class AgentDojoAdapter:
             goal=injection_task.GOAL,
             tool_sequence=tool_sequence,
             instruction=instruction,
-            injected_text=str(defaults[injection_vector_id]) + instruction,
+            injected_text=(
+                # ``defaults[...]`` is already a YAML-ready fragment supplied
+                # by AgentDojo.  Only our raw generated suffix needs escaping.
+                str(defaults[injection_vector_id]) + self._yaml_double_quoted_fragment(instruction)
+            ),
         )
 
     def evaluate(
