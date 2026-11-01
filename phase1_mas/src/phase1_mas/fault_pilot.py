@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .faults import FaultSpec, FaultType
+from .faults import FaultSpec, FaultType, MaliciousInstructionVariant
 from .agents import LLM_CLEAN_PILOT_TASK_IDS
 from .metrics import aggregate_fault_experiment, write_metric_outputs
 from .workflow import LLMMultiAgentWorkflow
@@ -34,11 +34,30 @@ def _run_one(
     fault_type: FaultType,
     seed: int,
     payload: dict[str, Any] | None,
+    malicious_variant: MaliciousInstructionVariant,
 ) -> dict[str, Any]:
     """Execute one fair clean/fault pair and persist its propagation report."""
 
-    fault_id = f"{fault_type.value}_seed_{seed}"
-    spec = FaultSpec(fault_id=fault_id, fault_type=fault_type, payload=payload, seed=seed)
+    # The selected variant applies only to the adversarial family.  Accidental
+    # runs in an ``--fault-type all`` grid retain their original schedules.
+    effective_variant = (
+        malicious_variant
+        if fault_type is FaultType.MALICIOUS_INSTRUCTION
+        else MaliciousInstructionVariant.HANDOFF_DEFAULT
+    )
+    variant_suffix = (
+        ""
+        if effective_variant is MaliciousInstructionVariant.HANDOFF_DEFAULT
+        else f"_{effective_variant.value}"
+    )
+    fault_id = f"{fault_type.value}{variant_suffix}_seed_{seed}"
+    spec = FaultSpec(
+        fault_id=fault_id,
+        fault_type=fault_type,
+        payload=payload,
+        seed=seed,
+        malicious_variant=effective_variant,
+    )
     clean, faulty, report = workflow.run_paired(task_id=task_id, fault_spec=spec, output_dir=output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     report_path = output_dir / "propagation_report.json"
@@ -47,6 +66,9 @@ def _run_one(
         "fault_id": fault_id,
         "fault_type": fault_type.value,
         "category": fault_type.category,
+        "malicious_variant": (
+            effective_variant.value if fault_type is FaultType.MALICIOUS_INSTRUCTION else None
+        ),
         "clean_task_success": clean.task_passed,
         "faulty_task_success": faulty.task_passed,
         "propagation_report": report.as_dict(),
@@ -72,6 +94,16 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42, help="Recorded fault-schedule seed.")
     parser.add_argument("--payload", help="Optional JSON object overriding the selected fault's default payload.")
     parser.add_argument(
+        "--malicious-variant",
+        choices=[variant.value for variant in MaliciousInstructionVariant],
+        default=MaliciousInstructionVariant.HANDOFF_DEFAULT.value,
+        help=(
+            "How to instantiate malicious_instruction. handoff_default preserves the original "
+            "Researcher→Planner artifact injection; AgentDojo variants inject detailed text into "
+            "a Banking environment vector before Researcher runs. Use a distinct --output-dir per variant."
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path("phase1_mas/results/fault_pilot"),
@@ -83,6 +115,7 @@ def main() -> None:
         parser.error("--payload is supported only with one specific --fault-type")
 
     workflow = LLMMultiAgentWorkflow.from_env()
+    malicious_variant = MaliciousInstructionVariant(args.malicious_variant)
     types = list(FaultType) if args.fault_type == "all" else [FaultType(args.fault_type)]
     task_ids = LLM_CLEAN_PILOT_TASK_IDS if args.task_id == "all" else (args.task_id,)
     reports = []
@@ -98,6 +131,7 @@ def main() -> None:
                     fault_type,
                     args.seed + task_index * len(types) + fault_index,
                     payload,
+                    malicious_variant,
                 )
             )
     summary_path = args.output_dir / "fault_pilot_summary.json"

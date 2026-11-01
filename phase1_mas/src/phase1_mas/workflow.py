@@ -28,6 +28,18 @@ from .tool_gateway import ToolGateway
 from .trace import TraceRecorder
 
 
+def _contains_text(value: object, expected: str) -> bool:
+    """Return whether untrusted text survived into a JSON-like artifact value."""
+
+    if isinstance(value, str):
+        return expected in value
+    if isinstance(value, dict):
+        return any(_contains_text(item, expected) for item in value.values())
+    if isinstance(value, (tuple, list)):
+        return any(_contains_text(item, expected) for item in value)
+    return False
+
+
 class ArtifactHandoffVerifier(Protocol):
     """Small interface used by the always-verify defense without import cycles.
 
@@ -209,6 +221,9 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
         """
 
         post_snapshot = gateway.snapshot("workflow_end")
+        agentdojo_injection_task_id = None
+        if fault_injector is not None and fault_injector.spec.is_agentdojo_environment_injection:
+            agentdojo_injection_task_id = fault_injector.spec.malicious_variant.injection_task_id
         score = self.scorer.score(
             context=context,
             final_message=final_message,
@@ -216,6 +231,7 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
             pre_state_hash=pre_state_hash,
             post_state_hash=post_snapshot.state_hash,
             trace=trace,
+            agentdojo_injection_task_id=agentdojo_injection_task_id,
         )
         trace.emit(
             "run_finished",
@@ -306,7 +322,38 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
                 condition="faulty" if fault_spec is not None else "clean",
                 fault_spec=fault_spec,
             )
-            context = self.adapter.create_context(task_id)
+            # The legacy malicious fault starts only after Researcher writes
+            # evidence.  In contrast, AgentDojo variants place detailed
+            # adversarial text in an actual Banking environment vector before
+            # Researcher begins.  Thus the trace can distinguish an untrusted
+            # external-tool result from a corrupted inter-agent handoff.
+            environment_injection: dict[str, object] | None = None
+            context_injections: dict[str, str] | None = None
+            if fault_spec is not None and fault_spec.is_agentdojo_environment_injection:
+                injection_task_id = fault_spec.malicious_variant.injection_task_id
+                if injection_task_id is None:  # pragma: no cover - enum contract guard
+                    raise RuntimeError("AgentDojo malicious variant is missing its injection task ID")
+                payload = self.adapter.build_agentdojo_injection_payload(
+                    task_id=task_id,
+                    injection_task_id=injection_task_id,
+                )
+                context_injections = {payload.injection_vector_id: payload.injected_text}
+                environment_injection = {
+                    "source": "agentdojo_banking_injection_task",
+                    "injection_task_id": payload.injection_task_id,
+                    "injection_vector_id": payload.injection_vector_id,
+                    "goal": payload.goal,
+                    "tool_sequence": list(payload.tool_sequence),
+                    "instruction": payload.instruction,
+                    "injected_text": payload.injected_text,
+                }
+                trace.emit(
+                    "environment_fault_injected",
+                    fault_spec=fault_spec,
+                    environment_injection=environment_injection,
+                )
+
+            context = self.adapter.create_context(task_id, injections=context_injections)
             store = ArtifactStore(trace)
             gateway = ToolGateway(
                 runtime=context.runtime,
@@ -318,9 +365,32 @@ class LLMMultiAgentWorkflow(CleanMultiAgentWorkflow):
             fault_injector = FaultInjector(fault_spec, trace) if fault_spec is not None else None
             evidence = LLMResearcher().run(task_id, context.task.PROMPT, store, gateway, self.llm, trace)
             if fault_injector is not None:
-                # Planner will read the newest version from ArtifactStore.  The
-                # original remains in the trace as the clean producer output.
-                evidence = fault_injector.apply_after_write(store, evidence)
+                if fault_spec is not None and fault_spec.is_agentdojo_environment_injection:
+                    if environment_injection is None:  # pragma: no cover - construction invariant
+                        raise RuntimeError("AgentDojo environment injection metadata was not created")
+                    instruction = environment_injection["instruction"]
+                    assert isinstance(instruction, str)
+                    source_observed = _contains_text(evidence.content, instruction)
+                    trace.emit(
+                        "environment_injection_observed",
+                        injection_task_id=fault_spec.malicious_variant.injection_task_id,
+                        injection_vector_id=environment_injection["injection_vector_id"],
+                        evidence_artifact_id=evidence.artifact_id,
+                        source_observed=source_observed,
+                    )
+                    # The evidence is not rewritten: it is the Researcher's
+                    # authentic output after reading a contaminated tool
+                    # result.  The record links that fact to the Planner read.
+                    fault_injector.record_environment_injection(
+                        evidence_artifact=evidence,
+                        injection_payload=environment_injection,
+                        source_observed=source_observed,
+                    )
+                else:
+                    # Planner will read the newest version from ArtifactStore.
+                    # The original remains in the trace as the clean producer
+                    # output for the legacy handoff fault and accidental ones.
+                    evidence = fault_injector.apply_after_write(store, evidence)
             if verifier is not None:
                 decision = verifier.verify(
                     artifact=evidence,

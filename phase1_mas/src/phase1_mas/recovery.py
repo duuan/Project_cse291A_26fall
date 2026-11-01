@@ -25,7 +25,7 @@ from typing import Any, Iterable, Sequence
 
 from .agents import EXECUTOR_TOOL_NAMES, LLM_CLEAN_PILOT_TASK_IDS
 from .artifact_store import ArtifactStore
-from .faults import FaultSpec, FaultType
+from .faults import FaultSpec, FaultType, MaliciousInstructionVariant
 from .llm_gateway import LLMGateway, LLMRequestError, parse_json_object
 from .metrics import TraceMetrics, WorkSlice, summarize_events
 from .models import Artifact, ArtifactValidity, StepRecord, VerificationDecision, WorkflowRunResult, canonical_json, to_jsonable, utc_now_iso
@@ -336,7 +336,10 @@ class RecoveryResult:
         tool_calls = 0
         state_changing_tool_calls = 0
         denied_tool_calls = 0
+        agentdojo_security_breaches = 0
         for attempt in self.attempts:
+            if getattr(attempt.result.score, "agentdojo_injection_security_breach", False) is True:
+                agentdojo_security_breaches += 1
             for event in attempt.result.trace_events:
                 if event.get("event_type") == "verification_rejected":
                     verification_rejections += 1
@@ -352,6 +355,7 @@ class RecoveryResult:
             "tool_call_count": tool_calls,
             "state_changing_tool_call_count": state_changing_tool_calls,
             "denied_tool_call_count": denied_tool_calls,
+            "agentdojo_injection_security_breach_count": agentdojo_security_breaches,
         }
 
     def as_dict(self) -> dict[str, Any]:
@@ -465,6 +469,7 @@ def summarize_recovery_results(results: Sequence[RecoveryResult]) -> dict[str, A
             "tool_call_count": 0,
             "state_changing_tool_call_count": 0,
             "denied_tool_call_count": 0,
+            "agentdojo_injection_security_breach_count": 0,
         }
         for result in group:
             verifier_total = verifier_total.plus(result.verifier_work)
@@ -520,12 +525,29 @@ def _run_one_strategy(
     fault_type: FaultType,
     seed: int,
     payload: dict[str, Any] | None,
+    malicious_variant: MaliciousInstructionVariant,
     output_dir: Path,
 ) -> RecoveryResult:
     """Build one reproducible fault spec and execute exactly one baseline."""
 
-    fault_id = f"{fault_type.value}_seed_{seed}"
-    spec = FaultSpec(fault_id=fault_id, fault_type=fault_type, payload=payload, seed=seed)
+    effective_variant = (
+        malicious_variant
+        if fault_type is FaultType.MALICIOUS_INSTRUCTION
+        else MaliciousInstructionVariant.HANDOFF_DEFAULT
+    )
+    variant_suffix = (
+        ""
+        if effective_variant is MaliciousInstructionVariant.HANDOFF_DEFAULT
+        else f"_{effective_variant.value}"
+    )
+    fault_id = f"{fault_type.value}{variant_suffix}_seed_{seed}"
+    spec = FaultSpec(
+        fault_id=fault_id,
+        fault_type=fault_type,
+        payload=payload,
+        seed=seed,
+        malicious_variant=effective_variant,
+    )
     if strategy is RecoveryStrategy.FULL_RESTART:
         return runner.run_full_restart(task_id=task_id, fault_spec=spec, output_dir=output_dir)
     return runner.run_always_verify(task_id=task_id, fault_spec=spec, output_dir=output_dir)
@@ -574,6 +596,15 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42, help="Base seed recorded in each fault specification.")
     parser.add_argument("--payload", help="Optional JSON payload for one selected fault type.")
     parser.add_argument(
+        "--malicious-variant",
+        choices=[variant.value for variant in MaliciousInstructionVariant],
+        default=MaliciousInstructionVariant.HANDOFF_DEFAULT.value,
+        help=(
+            "How to instantiate malicious_instruction. handoff_default uses the original evidence-handoff "
+            "fault; AgentDojo variants inject detailed text into a Banking environment vector."
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path("phase1_mas/results/recovery_pilot"),
@@ -587,6 +618,7 @@ def main() -> None:
     task_ids = LLM_CLEAN_PILOT_TASK_IDS if args.task_id == "all" else (args.task_id,)
     fault_types = list(FaultType) if args.fault_type == "all" else [FaultType(args.fault_type)]
     strategies = list(RecoveryStrategy) if args.strategy == "all" else [RecoveryStrategy(args.strategy)]
+    malicious_variant = MaliciousInstructionVariant(args.malicious_variant)
     workflow = LLMMultiAgentWorkflow.from_env()
     runner = Phase1RecoveryRunner(workflow)
     results: list[RecoveryResult] = []
@@ -595,6 +627,14 @@ def main() -> None:
             # Exactly the same schedule formula as fault_pilot.py.  Both
             # baselines receive the same FaultSpec for this grid point.
             point_seed = args.seed + task_index * len(fault_types) + fault_index
+            effective_variant = (
+                malicious_variant
+                if fault_type is FaultType.MALICIOUS_INSTRUCTION
+                else MaliciousInstructionVariant.HANDOFF_DEFAULT
+            )
+            fault_directory = fault_type.value
+            if effective_variant is not MaliciousInstructionVariant.HANDOFF_DEFAULT:
+                fault_directory += f"_{effective_variant.value}"
             for strategy in strategies:
                 result = _run_one_strategy(
                     runner,
@@ -603,10 +643,11 @@ def main() -> None:
                     fault_type=fault_type,
                     seed=point_seed,
                     payload=payload,
-                    output_dir=args.output_dir / task_id / fault_type.value / strategy.value,
+                    malicious_variant=malicious_variant,
+                    output_dir=args.output_dir / task_id / fault_directory / strategy.value,
                 )
                 results.append(result)
-                result_path = args.output_dir / task_id / fault_type.value / strategy.value / "recovery_result.json"
+                result_path = args.output_dir / task_id / fault_directory / strategy.value / "recovery_result.json"
                 result_path.parent.mkdir(parents=True, exist_ok=True)
                 result_path.write_text(json.dumps(result.as_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

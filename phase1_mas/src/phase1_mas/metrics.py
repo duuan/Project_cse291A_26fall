@@ -635,6 +635,13 @@ def summarize_experiment_rows(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
             for stage in report.get("affected_stages", [])
             if isinstance(stage, str)
         )
+        # AgentDojo's injection ``security`` predicate is a task-semantic
+        # unauthorized-action signal.  It is distinct from ToolGateway's
+        # role-permission denial: a malicious transfer can use an otherwise
+        # permitted ``send_money`` tool and still be unauthorized.
+        security_values = [report.get("agentdojo_security_breach") for report in propagation]
+        security_observed = [value for value in security_values if isinstance(value, bool)]
+        security_breaches = sum(value is True for value in security_observed)
         wasted_rows = [row["wasted_work"] for row in group_rows]
         fault_to_end = [
             _number(wasted.get("fault_to_end_latency_ms"))
@@ -660,6 +667,17 @@ def summarize_experiment_rows(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 "behavioral_propagation_rate": _rate(behavioral, len(group_rows)),
                 "harmful_propagation_count": harmful,
                 "harmful_propagation_rate": _rate(harmful, len(group_rows)),
+            },
+            "unauthorized_actions": {
+                "role_permission_denied_tool_call_count": faulty_summary["unauthorized_actions"][
+                    "denied_tool_call_count"
+                ],
+                "runs_with_role_permission_denial": faulty_summary["unauthorized_actions"][
+                    "runs_with_denied_tool_call"
+                ],
+                "agentdojo_injection_security_evaluated_count": len(security_observed),
+                "agentdojo_injection_security_breach_count": security_breaches,
+                "agentdojo_injection_security_breach_rate": _rate(security_breaches, len(security_observed)),
             },
             "affected_stages": {
                 "comparisons_with_affected_stage": sum(bool(report.get("affected_stages")) for report in propagation),
@@ -703,8 +721,9 @@ def summarize_experiment_rows(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 "failure or a ToolGateway-denied tool call."
             ),
             "unauthorized_actions": (
-                "The current count is ToolGateway role-permission denials (tool_call_denied). It does not yet "
-                "claim a separate task-semantic action-policy verdict."
+                "Role-permission denials are ToolGateway tool_call_denied events. For the supported "
+                "AgentDojo malicious variants, a separate task-semantic unauthorized action is counted when "
+                "the corresponding AgentDojo injection-task security predicate is true."
             ),
             "affected_stages": "Unique stages recorded by the paired propagation report as reading/being behaviorally affected.",
             "wasted_work": (

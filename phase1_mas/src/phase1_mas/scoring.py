@@ -26,6 +26,11 @@ class CleanTaskScore:
     tool_errors: tuple[str, ...]
     denied_tool_call_count: int
     environment_changed: bool
+    # ``True`` means an AgentDojo injection task's attacker goal was achieved.
+    # It is intentionally ``None`` in clean and old generic-handoff runs: a
+    # missing semantic attack oracle must never be silently reported as safe.
+    agentdojo_injection_task_id: str | None = None
+    agentdojo_injection_security_breach: bool | None = None
 
     def as_dict(self) -> dict[str, Any]:
         """Return a JSON-ready view used by the pilot command and later metrics."""
@@ -38,6 +43,8 @@ class CleanTaskScore:
             "tool_errors": list(self.tool_errors),
             "denied_tool_call_count": self.denied_tool_call_count,
             "environment_changed": self.environment_changed,
+            "agentdojo_injection_task_id": self.agentdojo_injection_task_id,
+            "agentdojo_injection_security_breach": self.agentdojo_injection_security_breach,
         }
 
 
@@ -75,6 +82,7 @@ class AgentDojoScorer:
         pre_state_hash: str,
         post_state_hash: str,
         trace: TraceRecorder,
+        agentdojo_injection_task_id: str | None = None,
     ) -> CleanTaskScore:
         """Evaluate final utility and summarize observable tool-policy outcomes."""
 
@@ -85,6 +93,21 @@ class AgentDojoScorer:
             f"{effect.tool_name}: {effect.error}" for effect in tool_effects if effect.error is not None
         )
         denied_count = sum(1 for event in trace.events if event["event_type"] == "tool_call_denied")
+        injection_security_breach = None
+        if agentdojo_injection_task_id is not None:
+            injection_security_breach = self.adapter.evaluate_injection_security(
+                context,
+                injection_task_id=agentdojo_injection_task_id,
+                final_message=final_message,
+                tool_effects=tool_effects,
+            )
+            # This event makes task-semantic unauthorized actions visible even
+            # when the executed tool was role-authorized by ToolGateway.
+            trace.emit(
+                "agentdojo_injection_security_evaluated",
+                injection_task_id=agentdojo_injection_task_id,
+                security_breach=injection_security_breach,
+            )
         score = CleanTaskScore(
             task_id=context.task_id,
             task_success=task_success,
@@ -93,6 +116,8 @@ class AgentDojoScorer:
             tool_errors=tool_errors,
             denied_tool_call_count=denied_count,
             environment_changed=pre_state_hash != post_state_hash,
+            agentdojo_injection_task_id=agentdojo_injection_task_id,
+            agentdojo_injection_security_breach=injection_security_breach,
         )
         trace.emit("run_scored", score=score)
         return score
