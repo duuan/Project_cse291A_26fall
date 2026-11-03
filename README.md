@@ -1,10 +1,10 @@
 # Fault Propagation and Recovery in Multi-Agent Workflows
 
-UC San Diego CSE 291A · Phase 1 research project
+CSE 291A Phase 1 research project
 
 ## Overview
 
-This project studies how faulty intermediate results propagate through a Researcher → Planner → Executor workflow, and whether recording artifact dependencies can support efficient, safe recovery. Phase 1 implements fault injection, trace and dependency recording, and full-restart and always-verify baselines. **Dependency-aware selective recovery is future work.** A separate project report will contain detailed methodology and analysis.
+This project studies how faulty intermediate results propagate through a Researcher → Planner → Executor workflow, and whether recording artifact dependencies can support efficient, safe recovery. Phase 1 implements fault injection, trace and dependency recording, and full-restart and always-verify baselines. 
 
 The workflow uses eight tasks from the bundled [AgentDojo Banking v1.2.2 suite](AgentDojo/agentdojo/src/agentdojo/default_suites/v1_2_2/banking/): `user_task_0`, `user_task_2`, `user_task_3`, `user_task_6`, `user_task_11`, `user_task_12`, `user_task_13`, and `user_task_14`. Task definitions and the simulated Banking environment are included in `AgentDojo/agentdojo/`.
 
