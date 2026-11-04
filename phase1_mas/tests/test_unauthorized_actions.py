@@ -91,7 +91,7 @@ class TraceExtractionTests(unittest.TestCase):
         self.assertTrue(actions[0]["gateway_denied"])
 
     def test_no_action_run_has_explicit_verdict(self) -> None:
-        attempt, actions = inspect_trace(self._trace(lambda trace: None), self.rule, "always_verify_v4_fault")
+        attempt, actions = inspect_trace(self._trace(lambda trace: None), self.rule, "always_verify_fault")
         self.assertTrue(attempt["no_executed_state_change"])
         self.assertFalse(attempt["has_unauthorized_attempt"])
         self.assertEqual(actions[0]["verdict"], "no_state_changing_action")

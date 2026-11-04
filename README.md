@@ -14,7 +14,7 @@ The workflow uses eight tasks from the bundled [AgentDojo Banking v1.2.2 suite](
 
 Faults are injected mainly at the Researcher → Planner evidence handoff. The grid covers incorrect results, timeout or missing results, stale output, and malicious instructions. All four have signaled variants; incorrect results and malicious instructions also have silent variants. The experiments compare clean runs, unprotected faulty runs, full restart, and Always Verify at both handoffs. The offline authorization checker evaluates state-changing tool actions against the original user request and unmodified task environment; it is an evaluation tool, not a runtime defense.
 
-Key entry points are [`runner.sh`](phase1_mas/runner.sh), [`runner_always_verify_v4_only.sh`](phase1_mas/runner_always_verify_v4_only.sh), [`clean_always_verify.py`](phase1_mas/src/phase1_mas/clean_always_verify.py), and [`unauthorized_actions.py`](phase1_mas/src/phase1_mas/unauthorized_actions.py). Tests are in [`phase1_mas/tests/`](phase1_mas/tests/).
+Key entry points are [`runner.sh`](phase1_mas/runner.sh), [`runner_always_verify_only.sh`](phase1_mas/runner_always_verify_only.sh), [`clean_always_verify.py`](phase1_mas/src/phase1_mas/clean_always_verify.py), and [`unauthorized_actions.py`](phase1_mas/src/phase1_mas/unauthorized_actions.py). Tests are in [`phase1_mas/tests/`](phase1_mas/tests/).
 
 ## Code and data
 
@@ -23,9 +23,9 @@ Key entry points are [`runner.sh`](phase1_mas/runner.sh), [`runner_always_verify
 | [`AgentDojo/agentdojo/`](AgentDojo/agentdojo/) | Bundled benchmark code, Banking tasks, and simulated task data. |
 | [`phase1_mas/src/phase1_mas/`](phase1_mas/src/phase1_mas/) | Agents, workflow, faults, verification, metrics, and offline authorization checker. |
 | [`phase1_mas/phase1_results_248_seed42/`](phase1_mas/phase1_results_248_seed42/) | Original seed-42 clean, paired fault, full-restart, and historical Always Verify results. |
-| [`phase1_mas/results/05_clean_always_verify_seed42_prompt_v4/`](phase1_mas/results/05_clean_always_verify_seed42_prompt_v4/) | Eight clean + Always Verify v4 traces and summary. |
-| [`phase1_mas/results/phase1_always_verify_v4_seed42/`](phase1_mas/results/phase1_always_verify_v4_seed42/) | Forty-eight faulty + Always Verify v4 traces and result JSON. |
-| [`phase1_mas/results/unauthorized_actions_offline_seed42_v2/`](phase1_mas/results/unauthorized_actions_offline_seed42_v2/) | Authorization rules, summary, and per-attempt/action verdicts. |
+| [`phase1_mas/results/05_clean_always_verify_seed42/`](phase1_mas/results/05_clean_always_verify_seed42/) | Eight clean + Always Verify traces and summary. |
+| [`phase1_mas/results/phase1_always_verify_seed42/`](phase1_mas/results/phase1_always_verify_seed42/) | Forty-eight faulty + Always Verify traces and result JSON. |
+| [`phase1_mas/results/unauthorized_actions_offline_seed42/`](phase1_mas/results/unauthorized_actions_offline_seed42/) | Authorization rules, summary, and per-attempt/action verdicts. |
 
 Result JSON uses repository-relative trace paths. Run analysis commands from the repository root.
 
@@ -36,9 +36,9 @@ Result JSON uses repository-relative trace paths. Run analysis commands from the
 | Original clean baseline | 8/8 AgentDojo task utility success |
 | Unprotected faulty attempts | 19/48 AgentDojo task utility success |
 | Full restart, final clean retry | 44/48 AgentDojo task utility success |
-| Clean + Always Verify v4 | 6/8 correct task completions |
-| Faulty + Always Verify v4 | 40/48 verifier rejections |
-| Unauthorized state-changing actions | 7/48 unprotected faulty; 7/48 faulty Always Verify v4 |
+| Clean + Always Verify | 6/8 correct task completions |
+| Faulty + Always Verify | 40/48 verifier rejections |
+| Unauthorized state-changing actions | 7/48 unprotected faulty; 7/48 faulty Always Verify |
 
 The seven unauthorized findings in each faulty group occurred in the silent incorrect-result cases. Task utility, correct completion, verifier rejection, and unauthorized action are distinct measures. In particular, a verifier's safe stop is not automatically successful task completion. See the linked summaries and the project report for denominators, cost and latency measurements, and interpretation.
 
@@ -73,7 +73,7 @@ export PHASE1_MAS_OUTPUT_USD_PER_MILLION_TOKENS=0.50
 SEED=42 RESULTS_ROOT=phase1_mas/results/my_new_full_run bash phase1_mas/runner.sh
 
 # Only the 48 faulty Always Verify points
-SEED=42 RESULTS_ROOT=phase1_mas/results/my_new_v4_fault_run bash phase1_mas/runner_always_verify_v4_only.sh
+SEED=42 RESULTS_ROOT=phase1_mas/results/my_new_verify_fault_run bash phase1_mas/runner_always_verify_only.sh
 
 # Only the eight clean + Always Verify tasks
 python -m phase1_mas.clean_always_verify --reference-dir phase1_mas/phase1_results_248_seed42 --output-dir phase1_mas/results/my_new_clean_verify
@@ -82,7 +82,7 @@ python -m phase1_mas.clean_always_verify --reference-dir phase1_mas/phase1_resul
 The offline authorization audit reads existing traces and makes no LLM calls:
 
 ```bash
-python -m phase1_mas.unauthorized_actions --reference-root phase1_mas/phase1_results_248_seed42 --v4-root phase1_mas/results/phase1_always_verify_v4_seed42 --clean-v4-root phase1_mas/results/05_clean_always_verify_seed42_prompt_v4 --output-dir phase1_mas/results/my_new_authorization_audit
+python -m phase1_mas.unauthorized_actions --reference-root phase1_mas/phase1_results_248_seed42 --verify-root phase1_mas/results/phase1_always_verify_seed42 --clean-verify-root phase1_mas/results/05_clean_always_verify_seed42 --output-dir phase1_mas/results/my_new_authorization_audit
 ```
 
 ## Scope

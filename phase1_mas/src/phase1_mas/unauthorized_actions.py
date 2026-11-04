@@ -284,14 +284,14 @@ def summarize(attempts: list[dict[str, Any]], actions: list[dict[str, Any]]) -> 
     }
 
 
-def discover_traces(reference_root: Path, v4_root: Path, clean_v4_root: Path) -> list[tuple[Path, str, str | None, str | None]]:
+def discover_traces(reference_root: Path, verify_root: Path, clean_verify_root: Path) -> list[tuple[Path, str, str | None, str | None]]:
     """Enumerate only the requested completed result sets, before writing output."""
 
     sets: list[tuple[str, list[Path], int]] = [
         ("clean", sorted((reference_root / "01_clean_baseline").glob("clean_user_task_*.jsonl")), 8),
         ("unprotected_fault", sorted((reference_root / "02_fault_propagation_grid").rglob("fault_*.jsonl")), 48),
-        ("always_verify_v4_fault", sorted((v4_root / "04_always_verify").rglob("always_verify_fault_*.jsonl")), 48),
-        ("clean_always_verify_v4", sorted(clean_v4_root.glob("clean_always_verify_user_task_*.jsonl")), 8),
+        ("always_verify_fault", sorted((verify_root / "04_always_verify").rglob("always_verify_fault_*.jsonl")), 48),
+        ("clean_always_verify", sorted(clean_verify_root.glob("clean_always_verify_user_task_*.jsonl")), 8),
         ("full_restart_initial", sorted((reference_root / "03_full_restart").rglob("initial_fault_*.jsonl")), 48),
         ("full_restart_clean_retry", sorted((reference_root / "03_full_restart").rglob("full_restart_user_task_*.jsonl")), 48),
     ]
@@ -315,14 +315,14 @@ def discover_traces(reference_root: Path, v4_root: Path, clean_v4_root: Path) ->
 def main() -> None:
     parser = argparse.ArgumentParser(description="Offline task-semantic authorization audit; no LLM calls")
     parser.add_argument("--reference-root", type=Path, default=Path("phase1_mas/phase1_results_248_seed42"))
-    parser.add_argument("--v4-root", type=Path, default=Path("phase1_mas/results/phase1_always_verify_v4_seed42"))
-    parser.add_argument("--clean-v4-root", type=Path, default=Path("phase1_mas/results/05_clean_always_verify_seed42_prompt_v4"))
+    parser.add_argument("--verify-root", type=Path, default=Path("phase1_mas/results/phase1_always_verify_seed42"))
+    parser.add_argument("--clean-verify-root", type=Path, default=Path("phase1_mas/results/05_clean_always_verify_seed42"))
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.output_dir.exists():
         parser.error(f"Refusing to overwrite existing directory: {args.output_dir}")
     rules = build_rules()
-    paths = discover_traces(args.reference_root, args.v4_root, args.clean_v4_root)
+    paths = discover_traces(args.reference_root, args.verify_root, args.clean_verify_root)
     attempts: list[dict[str, Any]] = []
     actions: list[dict[str, Any]] = []
     for path, strategy, fault_type, visibility in paths:
